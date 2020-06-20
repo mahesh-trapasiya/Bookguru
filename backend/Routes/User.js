@@ -3,6 +3,6 @@ const usersController = require("../Controllers/User");
 
 const router = express.Router();
 
-router.post("/api/adduser", usersController.addUser);
+// router.post("/api/adduser", usersController.);
 
 module.exports = router;

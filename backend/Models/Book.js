@@ -20,7 +20,11 @@ const bookSchema = new Schema({
   },
   upload: {
     type: Object,
-    required: true,
+    // required: true,
+  },
+  postedBy: {
+    type: Schema.Types.ObjectId,
+    ref: "Users",
   },
   comments: [
     {
@@ -31,15 +35,15 @@ const bookSchema = new Schema({
       },
       postedBy: {
         type: Schema.Types.ObjectId,
-        ref: "User",
+        ref: "Users",
       },
     },
   ],
   likes: [
     {
-      likedby: {
+      likedBy: {
         type: Schema.Types.ObjectId,
-        ref: "User",
+        ref: "Users",
       },
 
       likedFrom: {

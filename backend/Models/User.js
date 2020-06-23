@@ -30,7 +30,7 @@ const UserSchema = new Schema({
     required: true,
   },
   country: {
-    type: String,
+    type: Schema.Types.ObjectId,
     ref: "Country",
   },
   created: {
@@ -41,10 +41,12 @@ const UserSchema = new Schema({
     type: Date,
     default: Date.now,
   },
-  intrest: {
-    type: String,
-    ref: "BooksCategories",
-  },
+  intrest: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "BooksCategories",
+    },
+  ],
   verificationcode: {
     type: String,
   },

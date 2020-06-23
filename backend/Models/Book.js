@@ -46,12 +46,26 @@ const bookSchema = new Schema({
         ref: "Users",
       },
 
-      likedFrom: {
+      created: {
         type: Date,
         default: Date.now,
       },
     },
   ],
+  deslikes: [
+    {
+      deslikedBy: {
+        type: Schema.Types.ObjectId,
+        ref: "Users",
+      },
+
+      created: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
+
   status: {
     type: String,
     default: "public",

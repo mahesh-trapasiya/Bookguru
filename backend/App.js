@@ -6,7 +6,9 @@ const bodyParser = require("body-parser");
 const booksRoutes = require("./Routes/Book");
 const usersRoutes = require("./Routes/User");
 const authRoutes = require("./Routes/Auth");
-// const countryRoutes = require("./Routes/Country");
+const cors = require("cors");
+
+const countryRoutes = require("./Routes/Country");
 
 const app = express();
 dotenv.config();
@@ -24,11 +26,12 @@ mongoose.connection.on("error", (err) =>
 
 //Bring Routes
 app.use(morgan("dev"));
+app.use(cors());
 app.use(bodyParser.json());
 app.use(booksRoutes);
 app.use(usersRoutes);
 app.use(authRoutes);
-// app.use(countryRoutes);
+app.use(countryRoutes);
 
 mongoose.set("debug", true);
 

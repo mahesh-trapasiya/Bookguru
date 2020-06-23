@@ -1,10 +1,14 @@
 const User = require("../Models/User");
 const Book = require("../Models/Book");
+const jwt = require("jsonwebtoken");
 const { validationResult } = require("express-validator");
 const sendMail = require("../Helper/Mailer");
 const md5 = require("md5");
+const { response } = require("express");
 
 exports.Signup = async (req, res, next) => {
+  console.log("ress", req.body);
+
   const errs = validationResult(req);
 
   if (!errs.isEmpty()) {
@@ -21,50 +25,36 @@ exports.Signup = async (req, res, next) => {
       return res.status(403).json({ error: "Email already exists" });
     }
 
-    const OTP = Math.floor(100000 + Math.random() * 900000);
-    console.log(OTP);
+    const OTP = Math.random()
+      .toString(36)
+      .replace(/[^a-z0-9]+/g, "")
+      .substr(0, 6);
 
     const user = new User({
       username: req.body.username,
       fname: req.body.fname,
       lname: req.body.lname,
       email: req.body.email,
-      password: md5(req.body.password),
-
+      password: req.body.password,
       role: req.body.role,
-      intrest: req.body.intrest,
+      intrest: req.body.intrests,
       country: req.body.country,
-      plan: "none",
+      plan: response.body.plan || "",
       verificationcode: OTP,
     });
-
-    if (req.body.role === "Writer") {
-      const book = new Book({
-        category: req.body.bookName,
-        name: req.body.bookName,
-        pages: req.body.bookPages,
-        reference: req.body.bookreference,
-        upload: req.body.bookFile,
-      });
-
-      book
-        .save()
-        .then((result) => {
-          res
-            .status(201)
-            .json({ msg: "Signup Successfully, Proceed to Login!" });
-        })
-        .catch((error) => {
-          console.log("Error While Adding Book", error);
-        });
-    } else {
-      user.plan = req.body.plan;
-    }
 
     user
       .save()
       .then((error, result) => {
+        const destProfile = path.join(
+          __dirname,
+          "..",
+          "upload",
+          String(user._id),
+          "books"
+        );
         sendMail(emailData);
+
         return res.status(200).json({
           message: ` Verification Code Has been Sent to ${req.body.email}`,
         });
@@ -89,7 +79,7 @@ exports.VerifyOtp = async (req, res, next) => {
     if (err) {
       return res.json("User with this email does not exists");
     } else {
-      if (user.verificationcode === req.body.verificationcode) {
+      if (user.verificationcode === req.body.code) {
         User.updateOne(
           { email: req.body.email },
           {
@@ -100,7 +90,7 @@ exports.VerifyOtp = async (req, res, next) => {
           },
           (data) => {
             return res.json({
-              msg: "Account Verified",
+              message: "Account Verified",
             });
           }
         );
@@ -112,8 +102,6 @@ exports.VerifyOtp = async (req, res, next) => {
 };
 
 exports.Signin = async (req, res, next) => {
-  console.table(req.body);
-
   try {
     const userExists = await User.findOne({
       $and: [
@@ -174,6 +162,6 @@ exports.Signin = async (req, res, next) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ error: error });
+    console.log(error);
   }
 };

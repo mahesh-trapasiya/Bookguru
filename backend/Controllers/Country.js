@@ -252,3 +252,12 @@ exports.addCountries = (req, res) => {
     return res.json({ msg: "Countries Added Successfully" });
   });
 };
+
+exports.getCountries = async (req, res) => {
+  try {
+    const countries = await Country.find();
+    res.status(200).json({ countries });
+  } catch (error) {
+    res.status(500).json({ error: "Something went wrong...." });
+  }
+};

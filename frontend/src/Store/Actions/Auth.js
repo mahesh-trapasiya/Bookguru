@@ -25,6 +25,37 @@ export const logout = () => {
     type: actionTypes.AUTH_LOGOUT,
   };
 };
+
+export const signupStart = () => {
+  return {
+    type: actionTypes.SIGNUP_START,
+  };
+};
+
+export const signupSuccess = (userData) => {
+  return {
+    type: actionTypes.SIGNUP_SUCCESS,
+    userData: userData,
+  };
+};
+export const signupFail = (error) => {
+  return {
+    type: actionTypes.SIGNUP_FAIL,
+    error: error,
+  };
+};
+export const VerifyCodeSuccess = (userData) => {
+  return {
+    type: actionTypes.VERIFY_CODE_SUCCESS,
+    userData,
+  };
+};
+export const verifyCodeFailed = (error) => {
+  return {
+    type: actionTypes.VERIFY_CODE_FAILED,
+    error: error,
+  };
+};
 export const auth = (email, password) => {
   return async (dispatch) => {
     dispatch(authStart());
@@ -59,37 +90,6 @@ export const auth = (email, password) => {
   };
 };
 
-export const signupStart = () => {
-  return {
-    type: actionTypes.SIGNUP_START,
-  };
-};
-
-export const signupSuccess = (userData) => {
-  return {
-    type: actionTypes.SIGNUP_SUCCESS,
-    userData: userData,
-  };
-};
-export const signupFail = (error) => {
-  return {
-    type: actionTypes.SIGNUP_FAIL,
-    error: error,
-  };
-};
-export const VerifyCodeSuccess = (userData) => {
-  return {
-    type: actionTypes.VERIFY_CODE_SUCCESS,
-    userData,
-  };
-};
-export const verifyCodeFailed = (error) => {
-  return {
-    type: actionTypes.VERIFY_CODE_FAILED,
-    error: error,
-  };
-};
-
 export const onSignup = (data) => {
   return (dispatch) => {
     dispatch(signupStart());
@@ -111,8 +111,6 @@ export const onSignup = (data) => {
 };
 
 export const verifyCode = (data) => {
-  console.log("____", data);
-
   return (dispatch) =>
     axios
       .put("auth/verifyotp", data, {

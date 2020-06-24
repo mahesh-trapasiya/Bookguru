@@ -10,7 +10,6 @@ import {
   Radio,
   Select,
   message,
-  Tabs,
 } from "antd";
 import { fetchCountries } from "../Store/Actions/Country";
 import { fetchCategories } from "../Store/Actions/Book";
@@ -89,7 +88,7 @@ function Signup({
   useEffect(() => {
     getCountrylist();
     getCategoriesList();
-  }, []);
+  }, [getCountrylist, getCategoriesList]);
 
   return (
     <div style={{ backgroundColor: "#001529" }}>

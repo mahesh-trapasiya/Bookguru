@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Form, Input, Button, Row, Col, Typography, message } from "antd";
-import { Link, navigate } from "@reach/router";
+import { Link } from "@reach/router";
 import { connect } from "react-redux";
 import { auth } from "../Store/Actions/Auth";
 

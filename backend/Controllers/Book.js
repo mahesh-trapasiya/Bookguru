@@ -50,19 +50,18 @@ exports.getBooks = (req, res) => {
   });
 };
 
-exports.addBook = async (req, res) => {
-  const book = new Book({
-    category: req.body.category,
-    name: req.body.name,
-    pages: req.body.pages,
-    reference: req.body.reference,
-    bookedBy: req.body.bookedBy,
-    upload: req.file,
-  });
-
+exports.addBook = async (req, res, next) => {
   try {
+    const book = new Book({
+      category: req.body.category,
+      name: req.body.name,
+      pages: req.body.pages,
+      reference: req.body.reference,
+      postedBy: req.body.postedBy,
+      // upload: req.file,
+    });
     const result = await book.save();
-    uploadImageToFirebase(req.file);
+    // uploadImageToFirebase(req.file);
     res.status(200).json({ result });
   } catch (err) {
     res.status(500).json({ error: "Something Went Wrong..." });
@@ -175,12 +174,52 @@ exports.deleteBook = async (req, res, next) => {
 
 exports.topFiveMostLikedBook = async (req, res, next) => {
   try {
-    const books = Book.find({ likes: { $size: { $gt: 0 } } });
+    const result = await Book.findById(req.auth._id, { likes: 1 });
 
-    return await res.status(200).json(books);
+    return res.status(200).send({ result });
   } catch (error) {
     res.status(500).json({
-      error: error,
+      error: "Something went wrong...",
     });
+  }
+};
+
+exports.makeBookPrivate = async (req, res, next) => {
+  try {
+    const UpdatedStatus = await Book.findByIdAndUpdate(
+      req.body.bookId,
+      {
+        $set: { status: !status },
+      },
+      { new: true }
+    );
+    res.status(200).json(UpdatedStatus);
+  } catch (error) {
+    res.status(500).json({
+      error: "Something Went Wrong",
+    });
+  }
+};
+
+exports.deletePostBook = async (req, res, next) => {
+  const book = req.book;
+  if (!book) {
+    return res.json({ message: "Post not Found" });
+  }
+  //console.table(req.auth.role);
+  if (
+    req.auth._id != req.book.postedBy._id &&
+    req.auth.role != "Writer" &&
+    req.auth.role != "Reader"
+  ) {
+    return res(401).json({
+      msg: "Not authorized user for deleting this Book",
+    });
+  }
+  try {
+    const result = await Book.remove({ _id: req.book._id });
+    return res.status(200).json({ msg: "Book deleted successfully." });
+  } catch (error) {
+    return res.status(500).json("Something Went Wrong...");
   }
 };

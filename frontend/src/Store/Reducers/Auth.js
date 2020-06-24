@@ -1,7 +1,5 @@
 import * as actionTypes from "../Actions/ActionTypes";
 import { updateObject } from "../utility";
-import { auth } from "../Actions/Auth";
-import axios from "axios";
 
 const intialState = {
   token: null,

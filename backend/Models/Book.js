@@ -22,7 +22,7 @@ const bookSchema = new Schema({
     type: Object,
     // required: true,
   },
-  postedBy: {
+  author: {
     type: Schema.Types.ObjectId,
     ref: "Users",
   },
@@ -31,7 +31,6 @@ const bookSchema = new Schema({
       text: String,
       created: {
         type: Date,
-        default: Date.now,
       },
       postedBy: {
         type: Schema.Types.ObjectId,
@@ -48,7 +47,6 @@ const bookSchema = new Schema({
 
       created: {
         type: Date,
-        default: Date.now,
       },
     },
   ],
@@ -61,7 +59,6 @@ const bookSchema = new Schema({
 
       created: {
         type: Date,
-        default: Date.now,
       },
     },
   ],

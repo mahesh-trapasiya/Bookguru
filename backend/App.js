@@ -3,9 +3,12 @@ const morgan = require("morgan");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+var multer = require("multer");
+
 const booksRoutes = require("./Routes/Book");
 const usersRoutes = require("./Routes/User");
 const authRoutes = require("./Routes/Auth");
+
 const cors = require("cors");
 
 const countryRoutes = require("./Routes/Country");

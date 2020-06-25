@@ -52,19 +52,20 @@ exports.getBooks = (req, res) => {
 
 exports.addBook = async (req, res, next) => {
   try {
+    const imgUrl = uploadImageToFirebase(req.file);
     const book = new Book({
       category: req.body.category,
       name: req.body.name,
       pages: req.body.pages,
       reference: req.body.reference,
-      postedBy: req.body.postedBy,
-      // upload: req.file,
+      author: req.body.postedBy,
+      upload: imgUrl,
     });
     const result = await book.save();
-    // uploadImageToFirebase(req.file);
     res.status(200).json({ result });
   } catch (err) {
     res.status(500).json({ error: "Something Went Wrong..." });
+    console.log(err);
   }
 };
 

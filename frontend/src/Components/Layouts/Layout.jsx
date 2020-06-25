@@ -5,7 +5,8 @@ function Layout(props) {
   return (
     <>
       <Header display />
-      {props.children}
     </>
   );
 }
+
+export default Layout;

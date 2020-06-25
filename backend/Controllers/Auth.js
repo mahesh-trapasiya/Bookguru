@@ -1,9 +1,9 @@
 const User = require("../Models/User");
+const Book = require("../Models/Book");
 const jwt = require("jsonwebtoken");
 const { validationResult } = require("express-validator");
 const sendMail = require("../Helper/Mailer");
 const md5 = require("md5");
-const { response } = require("express");
 
 exports.Signup = async (req, res, next) => {
   const errs = validationResult(req);
@@ -106,11 +106,10 @@ exports.Signin = async (req, res, next) => {
           email: req.body.email,
         },
         {
-          password: md5(req.body.password),
+          password: req.body.password,
         },
       ],
     });
-    console.log(userExists);
 
     if (!userExists) {
       return res.status(422).json({
@@ -118,45 +117,51 @@ exports.Signin = async (req, res, next) => {
       });
     }
 
-    /* Updatting isLoggedIn and lastLoggedIn fields */
-    User.updateOne(
-      { email: req.body.email },
-      { isLoggedIn: true, lastLoggedIn: Date.now() }
-    )
-      .then((result) => {
-        console.log("Logged in Flag updated");
-      })
-      .catch((err) => {
-        if (err) {
-          console.log("Loggedin flag not updated");
-        }
+    if (userExists.verified) {
+      /* Updatting isLoggedIn and lastLoggedIn fields */
+      User.updateOne(
+        { email: req.body.email },
+        { isLoggedIn: true, lastLoggedIn: Date.now() }
+      )
+        .then((result) => {
+          console.log("Logged in Flag updated");
+        })
+        .catch((err) => {
+          if (err) {
+            console.log("Loggedin flag not updated");
+          }
+        });
+
+      let token;
+      token = jwt.sign(
+        {
+          _id: userExists._id,
+          fname: userExists.fname,
+          lname: userExists.lname,
+          email: userExists.email,
+          role: userExists.role,
+          token: token,
+        },
+        process.env.JWT_KEY,
+        { expiresIn: "1h" }
+      );
+
+      res.json({
+        msg: "Logged in!",
+        user: {
+          _id: userExists._id,
+          fname: userExists.fname,
+          lname: userExists.lname,
+          email: userExists.email,
+          role: userExists.role,
+          token: token,
+        },
       });
-
-    let token;
-    token = jwt.sign(
-      {
-        _id: userExists._id,
-        fname: userExists.fname,
-        lname: userExists.lname,
-        email: userExists.email,
-        role: userExists.role,
-        token: token,
-      },
-      process.env.JWT_KEY,
-      { expiresIn: "1h" }
-    );
-
-    res.json({
-      msg: "Logged in!",
-      user: {
-        _id: userExists._id,
-        fname: userExists.fname,
-        lname: userExists.lname,
-        email: userExists.email,
-        role: userExists.role,
-        token: token,
-      },
-    });
+    } else {
+      res.json({
+        error: "Your Account Is Not Verified",
+      });
+    }
   } catch (error) {
     console.log(error);
   }

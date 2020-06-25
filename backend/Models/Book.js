@@ -19,8 +19,7 @@ const bookSchema = new Schema({
     required: false,
   },
   upload: {
-    type: Object,
-    // required: true,
+    type: String,
   },
   author: {
     type: Schema.Types.ObjectId,

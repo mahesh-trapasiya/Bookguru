@@ -1,9 +1,9 @@
-@import '~antd/dist/antd.css';
+@import "~antd/dist/antd.css";
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -11,10 +11,9 @@ body {
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
-
 
 #components-layout-demo-top-side-2 .logo {
   width: 120px;
@@ -27,4 +26,20 @@ code {
 .site-layout-background {
   background: #fff;
   height: calc(100vh - 62px);
+}
+.ant-page-header-heading-left > * {
+  color: #fff;
+}
+.ant-page-header-back > * {
+  color: #fff;
+}
+
+.book-cover {
+  background-color: beige;
+  height: Calc(100vh - 75px);
+  
+  border-left: 10px solid black;
+  border-top: 10px solid black;
+  border-bottom: 10px solid black;
+  margin-bottom: 0;
 }

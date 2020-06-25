@@ -73,15 +73,17 @@ export const auth = (email, password) => {
         },
       })
       .then((response) => {
-        dispatch(authSuccess(response));
-        if (response.status === 200) {
+        if (response.status === 200 && response.data.error) {
+          dispatch(authFail(response.data.error));
+        } else {
+          dispatch(authSuccess(response));
           typeof window !== undefined &&
             localStorage.setItem("auth", JSON.stringify(response.data.user));
-        }
-        if (response.data.user.role === "Reader") {
-          navigate("/");
-        } else {
-          navigate("/writer");
+          if (response.data.user.role === "Reader") {
+            navigate("/");
+          } else {
+            navigate("/writer");
+          }
         }
       })
       .catch((err) => {

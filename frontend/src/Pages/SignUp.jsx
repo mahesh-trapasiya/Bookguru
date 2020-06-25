@@ -10,11 +10,14 @@ import {
   Radio,
   Select,
   message,
+  PageHeader,
 } from "antd";
 import { fetchCountries } from "../Store/Actions/Country";
 import { fetchCategories } from "../Store/Actions/Book";
 import { onSignup, verifyCode } from "../Store/Actions/Auth";
 import md5 from "md5";
+import { navigate } from "@reach/router";
+
 const { Option } = Select;
 const { Title } = Typography;
 
@@ -88,33 +91,38 @@ function Signup({
   useEffect(() => {
     getCountrylist();
     getCategoriesList();
-  }, [getCountrylist, getCategoriesList]);
+
+    msg && message.success(msg);
+
+    error && message.error(error);
+  }, [getCountrylist, getCategoriesList, error, msg]);
 
   return (
-    <div style={{ backgroundColor: "#001529" }}>
-      {msg ? message.success(msg) : null}
-      {error ? message.error(error) : null}
-      <Row justify="center" align="middle" style={{ height: "100vh" }}>
-        <Col
-          span={8}
-          style={{
-            backgroundColor: "White",
-            padding: "15px",
-            borderRadius: 8,
-          }}
-          xs={24}
-          md={24}
-          lg={10}
-        >
-          <Title level={2} style={{ textAlign: "center" }}>
-            Create Account
-          </Title>
-          <Form
-            {...layout}
-            name="nest-messages"
-            onFinish={onFinish}
-            validateMessages={validateMessages}
-          >
+    <div
+      style={{
+        backgroundColor: "#001529",
+        height: "100vh",
+        backgroundColor: "#fff",
+      }}
+    >
+      <PageHeader
+        style={{
+          backgroundColor: "#001529",
+        }}
+        className="site-page-header"
+        onBack={() => navigate("/login")}
+        title="Registration"
+      />
+
+      <Form
+        {...layout}
+        style={{ width: "100%", padding: "15px" }}
+        name="nest-messages"
+        onFinish={onFinish}
+        validateMessages={validateMessages}
+      >
+        <Row justify="center" style={{ marginTop: "10px" }}>
+          <Col xs={24} md={12} lg={12}>
             <Form.Item
               name={["user", "name"]}
               label="Username"
@@ -149,7 +157,6 @@ function Signup({
             >
               <Input.Password onChange={(e) => setPassword(e.target.value)} />
             </Form.Item>
-
             <Form.Item
               name="confirm"
               label="Confirm Password"
@@ -213,7 +220,9 @@ function Signup({
                   <Radio.Button value="prime">Prime($10/month)</Radio.Button>
                 </Radio.Group>
               </Form.Item>
-            ) : null}
+            ) : null}{" "}
+          </Col>
+          <Col xs={24} md={12} lg={12}>
             <Form.Item
               name="country"
               label="Country"
@@ -295,15 +304,14 @@ function Signup({
                 <Input onChange={(e) => setCode(e.target.value)} />
               </Form.Item>
             )}
-
-            <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
-              <Button type="primary" htmlType="submit">
-                {!verification ? "Send Verification Code" : "Verify"}
-              </Button>
-            </Form.Item>
-          </Form>
-        </Col>
-      </Row>
+          </Col>
+        </Row>
+        <Row justify="center" align="middle" xs={24} md={24} lg={24}>
+          <Button type="primary" htmlType="submit">
+            {!verification ? "Send Verification Code" : "Verify"}
+          </Button>
+        </Row>
+      </Form>
     </div>
   );
 }

@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Form, Input, Button, Row, Col, Typography, message } from "antd";
 import { Link } from "@reach/router";
 import { connect } from "react-redux";
 import { auth } from "../Store/Actions/Auth";
+import md5 from "md5";
 
 const { Title } = Typography;
 const layout = {
@@ -31,12 +32,13 @@ function Login({ onAuth, error }) {
       message.error(error);
     }
   };
-  error && message.error(error);
-
+  useEffect(() => {
+    error && message.error(error);
+  }, [error]);
   const onFinishFailed = (errorInfo) => {};
 
   return (
-    <div style={{ backgroundColor: "#001529" }}>
+    <div style={{ backgroundColor: "#001529", height: "100vh" }}>
       <Row justify="center" align="middle" style={{ height: "100vh" }}>
         <Col
           style={{
@@ -52,8 +54,8 @@ function Login({ onAuth, error }) {
             Login
           </Title>
           <Form
-            {...layout}
-            name="basic"
+            name="normal_login"
+            className="login-form"
             initialValues={{
               remember: true,
             }}
@@ -83,17 +85,25 @@ function Login({ onAuth, error }) {
                 },
               ]}
             >
-              <Input.Password onChange={(e) => setPassword(e.target.value)} />
+              <Input.Password
+                onChange={(e) => setPassword(md5(e.target.value))}
+              />
             </Form.Item>
-            <Link to="/forgotpassword">Forgot Password? </Link>
-
-            <Link style={{ float: "right" }} to="/signup">
-              New User? Signup Here
-            </Link>
-            <Form.Item {...tailLayout}>
-              <Button type="primary" htmlType="submit" onClick={handleLogin}>
+            <Form.Item>
+              <Button
+                style={{ width: "100%" }}
+                type="primary"
+                htmlType="submit"
+                onClick={handleLogin}
+              >
                 Login
               </Button>
+              <Link to="/forgotpassword" style={{ color: "maroon" }}>
+                Forgot Password?{" "}
+              </Link>
+              <Link style={{ float: "right" }} to="/signup">
+                New User? Signup Here
+              </Link>
             </Form.Item>
           </Form>
         </Col>

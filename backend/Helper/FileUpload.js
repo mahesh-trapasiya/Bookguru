@@ -19,16 +19,18 @@ exports.uploadImageToFirebase = (file) => {
       },
     });
 
-    // If there's an error
-    blobStream.on("error", (err) => console.log("err while uploading+ " + err));
-
-    // If all is good and done
+    // Handle Error
+    blobStream.on("error", (err) =>
+      console.log("Error While File Uploading" + err)
+    );
+    // Finish
     blobStream.on("finish", () => {});
     publicUrl = `https://firebasestorage.googleapis.com/v0/b/${
       bucket.name
     }/o/${encodeURIComponent(blob.name)}?alt=media`;
 
     blobStream.end(file.buffer);
+    console.log("public", publicUrl);
     return publicUrl;
     // When there is no more data to be consumed from the stream the end event gets emitted
   } catch (error) {

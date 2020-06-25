@@ -10,11 +10,11 @@ import {
 const { SubMenu } = Menu;
 const { Header, Content, Sider } = Layout;
 
-function Topbar({ display }) {
+function Topbar(props) {
   const [collapsed, setCollapsed] = useState(true);
 
   return (
-    display && (
+    props.display && (
       <Layout>
         <Header className="header">
           <div className="logo" />
@@ -28,10 +28,10 @@ function Topbar({ display }) {
             onCollapse={() => setCollapsed(!collapsed)}
           >
             <Menu
-              mode="inline"
+              mode="vertical"
               defaultSelectedKeys={["0"]}
               defaultOpenKeys={["0"]}
-              style={{ height: "100%", borderRight: 0 }}
+              style={{ height: "Calc(100vh - 70px)", borderRight: 0 }}
               theme="dark"
             >
               <SubMenu key="sub1" icon={<UserOutlined />} title="subnav 1">
@@ -76,7 +76,7 @@ function Topbar({ display }) {
                 height: "100%",
               }}
             >
-              Content
+              {props.children}
             </Content>
           </Layout>
         </Layout>

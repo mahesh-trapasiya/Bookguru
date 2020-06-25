@@ -9,8 +9,9 @@ function ValidateLogin(Child) {
     if (token) {
       return (
         <div>
-          <Header display />
-          <Child {...props} />
+          <Header display>
+            <Child />
+          </Header>
         </div>
       );
     } else {

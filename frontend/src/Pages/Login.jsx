@@ -54,10 +54,12 @@ function Login({ onAuth, error }) {
             Login
           </Title>
           <Form
+            {...layout}
             name="normal_login"
             className="login-form"
             initialValues={{
               remember: true,
+              plan: ["free"],
             }}
             // onFinish={handleLogin}
             onFinishFailed={onFinishFailed}
@@ -89,7 +91,7 @@ function Login({ onAuth, error }) {
                 onChange={(e) => setPassword(md5(e.target.value))}
               />
             </Form.Item>
-            <Form.Item>
+            <Form.Item wrapperCol={8}>
               <Button
                 style={{ width: "100%" }}
                 type="primary"

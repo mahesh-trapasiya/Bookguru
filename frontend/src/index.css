@@ -1,5 +1,8 @@
 @import "~antd/dist/antd.css";
-
+/* html {
+  height: 100%;
+}
+ */
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
@@ -25,7 +28,7 @@ code {
 
 .site-layout-background {
   background: #fff;
-  height: calc(100vh - 62px);
+  height: 100vh;
 }
 .ant-page-header-heading-left > * {
   color: #fff;
@@ -34,12 +37,37 @@ code {
   color: #fff;
 }
 
-.book-cover {
-  background-color: beige;
-  height: Calc(100vh - 75px);
-  
-  border-left: 10px solid black;
-  border-top: 10px solid black;
-  border-bottom: 10px solid black;
-  margin-bottom: 0;
+
+/* .logo {
+  color: #fff;
+  font-size: 35px;
+  padding: 0;
+  padding-left: 20px;
+  margin: 0;
+  background-color: #a76ddd;
+  width: 80px;
+} */
+.ant-layout-header {
+  padding: 0;
+}
+
+.steps {
+  background-color: cadetblue;
+  padding: 10px;
+}
+.steps{
+  color: black;
+}
+
+
+.book-document{
+  display: flex;
+  justify-content: center;
+}
+
+.ant-layout-content .site-layout-background{
+  height: 100vh;
+}
+.ant-page-header-heading-title{
+  color: black;
 }

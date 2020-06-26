@@ -34,6 +34,9 @@ const UserSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "Country",
   },
+  photo: {
+    type: String,
+  },
   created: {
     type: Date,
     default: Date.now,

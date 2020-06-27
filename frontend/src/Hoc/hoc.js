@@ -4,9 +4,9 @@ import Header from "../Components/Layouts/Header";
 
 function ValidateLogin(Child) {
   return function validateLogin(props) {
-    const token = localStorage.getItem("auth");
+    const auth = JSON.parse(localStorage.getItem("auth"));
 
-    if (token) {
+    if (auth.token) {
       return (
         <div>
           <Header display>

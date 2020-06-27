@@ -44,10 +44,28 @@ exports.getCategories = async (req, res) => {
   }
 };
 
-exports.getBooks = (req, res) => {
-  res.json({
-    books: [{ title: "First Book" }],
-  });
+exports.getBooks = async (req, res) => {
+  try {
+    const books = await Book.find({});
+
+    res.status(200).json({ books });
+  } catch (error) {
+    res.status(500).json({
+      error: "Error While Fetching Books",
+    });
+  }
+};
+
+exports.booksByUserId = async (req, res) => {
+  try {
+    const books = Book.find({ author: req.auth._id });
+
+    return res.status(200).json({
+      books,
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Something went wrong...." });
+  }
 };
 
 exports.addBook = async (req, res, next) => {

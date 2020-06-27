@@ -82,7 +82,7 @@ export const auth = (email, password) => {
           if (response.data.user.role === "Reader") {
             navigate("/");
           } else {
-            navigate("/writer");
+            navigate("/");
           }
         }
       })

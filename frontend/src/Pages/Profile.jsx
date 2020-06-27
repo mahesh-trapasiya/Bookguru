@@ -51,7 +51,7 @@ function UserProfile() {
         </Col>
       </Row>
       <Row>
-        <Col sm={6} md={18} lg={18}>
+        <Col sm={24} md={24} lg={24}>
           <div>
             <Tabs defaultActiveKey="1" onChange={callback}>
               <TabPane
@@ -63,7 +63,7 @@ function UserProfile() {
                 }
                 key="1"
               >
-                <Table />{" "}
+                <Table />
               </TabPane>
             </Tabs>
           </div>

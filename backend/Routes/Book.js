@@ -27,6 +27,8 @@ router.put("/book/unlike", authCheck, booksController.unlikeBook);
 router.put("/book/comment", authCheck, booksController.commentBook);
 router.put("/book/uncomment", authCheck, booksController.uncommentBook);
 router.put("/book/delete/:bookId", authCheck, booksController.deleteBook);
+router.put("/book/by/:userId", authCheck, booksController.booksByUserId);
+router.get("/books", booksController.getBooks);
 // router.post("/api/addcategories", booksController.addCategories);
 
 module.exports = router;

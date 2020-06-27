@@ -1,5 +1,5 @@
 import React, { useState, createRef } from "react";
-import { Table, Input, Button, Space } from "antd";
+import { Table, Input, Button, Space, Popconfirm, Tag } from "antd";
 import Highlighter from "react-highlight-words";
 import { SearchOutlined } from "@ant-design/icons";
 
@@ -8,25 +8,39 @@ const data = [
     key: "1",
     name: "John Brown",
     pages: 32,
-    refrences: "New York No. 1 Lake Park",
+    refrences: [
+      <Tag color="blue" key={1}>
+        References
+      </Tag>,
+    ],
+    delete: [
+      <Popconfirm title="Are you sure？" okText="Yes" cancelText="No">
+        <a href="#">Delete</a>
+      </Popconfirm>,
+    ],
+    update: [<a href="/">Update</a>],
+    likes: "50",
   },
   {
     key: "2",
     name: "Joe Black",
     pages: 42,
     refrences: "London No. 1 Lake Park",
+    likes: "1",
   },
   {
     key: "3",
     name: "Jim Green",
     pages: 32,
     refrences: "Sidney No. 1 Lake Park",
+    likes: "10",
   },
   {
     key: "4",
     name: "Jim Red",
     pages: 32,
     refrences: "London No. 2 Lake Park",
+    likes: "100",
   },
 ];
 
@@ -134,6 +148,10 @@ function TableUI() {
       dataIndex: "likes",
       key: "likes",
       width: "5%",
+      sorter: {
+        compare: (a, b) => a.likes - b.likes,
+        multiple: 2,
+      },
     },
     {
       title: "Deslikes",
@@ -153,8 +171,26 @@ function TableUI() {
       key: "favorites",
       width: "5%",
     },
+    {
+      title: "Status ",
+      dataIndex: "status",
+      key: "status",
+      width: "5%",
+    },
+    {
+      title: "Update",
+      dataIndex: "update",
+      key: "update",
+      width: "5%",
+    },
+    {
+      title: "Delete ",
+      dataIndex: "delete",
+      key: "delete",
+      width: "5%",
+    },
   ];
-  return <Table columns={columns} dataSource={data} />;
+  return <Table columns={columns} dataSource={data} tableLayout="auto" />;
 }
 
 export default TableUI;

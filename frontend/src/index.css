@@ -1,9 +1,12 @@
-@import '~antd/dist/antd.css';
-
+@import "~antd/dist/antd.css";
+/* html {
+  height: 100%;
+}
+ */
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -11,10 +14,9 @@ body {
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
-
 
 #components-layout-demo-top-side-2 .logo {
   width: 120px;
@@ -26,5 +28,46 @@ code {
 
 .site-layout-background {
   background: #fff;
-  height: calc(100vh - 62px);
+  height: 100vh;
+}
+.ant-page-header-heading-left > * {
+  color: #fff;
+}
+.ant-page-header-back > * {
+  color: #fff;
+}
+
+
+/* .logo {
+  color: #fff;
+  font-size: 35px;
+  padding: 0;
+  padding-left: 20px;
+  margin: 0;
+  background-color: #a76ddd;
+  width: 80px;
+} */
+.ant-layout-header {
+  padding: 0;
+}
+
+.steps {
+  background-color: cadetblue;
+  padding: 10px;
+}
+.steps{
+  color: black;
+}
+
+
+.book-document{
+  display: flex;
+  justify-content: center;
+}
+
+.ant-layout-content .site-layout-background{
+  height: 100vh;
+}
+.ant-page-header-heading-title{
+  color: black;
 }

@@ -1,3 +1,4 @@
+const cors = require("cors");
 const express = require("express");
 const morgan = require("morgan");
 const dotenv = require("dotenv");
@@ -6,14 +7,12 @@ const bodyParser = require("body-parser");
 const booksRoutes = require("./Routes/Book");
 const usersRoutes = require("./Routes/User");
 const authRoutes = require("./Routes/Auth");
-const cors = require("cors");
-
 const countryRoutes = require("./Routes/Country");
 
 const app = express();
 dotenv.config();
 
-//Database
+//Connect To databse
 mongoose
   .connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
@@ -24,17 +23,19 @@ mongoose.connection.on("error", (err) =>
   debug(`MongoDB connection error: ${err}`)
 );
 
-//Bring Routes
 app.use(morgan("dev"));
 app.use(cors());
+//Bring Routes
 app.use(bodyParser.json());
 app.use(booksRoutes);
 app.use(usersRoutes);
 app.use(authRoutes);
 app.use(countryRoutes);
 
+//Set Debugging Mode On
 mongoose.set("debug", true);
 
+//Start the Server
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
   console.log("Server is Up and Running");

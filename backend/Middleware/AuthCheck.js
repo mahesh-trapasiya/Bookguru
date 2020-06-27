@@ -15,9 +15,6 @@ module.exports = async (req, res, next) => {
     }
     const decodedToken = jwt.verify(token, process.env.JWT_KEY);
 
-    /* Checking User Existence */
-    /* Checking User Existence */
-
     req.auth = {
       _id: decodedToken._id,
       role: decodedToken.role,

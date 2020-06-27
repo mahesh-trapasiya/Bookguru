@@ -25,39 +25,6 @@ export const logout = () => {
     type: actionTypes.AUTH_LOGOUT,
   };
 };
-export const auth = (email, password) => {
-  return async (dispatch) => {
-    dispatch(authStart());
-    const authData = {
-      email: email,
-      password: password,
-    };
-
-    await axios
-      .post("auth/signin", authData, {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      })
-      .then((response) => {
-        dispatch(authSuccess(response));
-        if (response.status === 200) {
-          typeof window !== undefined &&
-            localStorage.setItem("auth", JSON.stringify(response.data.user));
-        }
-        if (response.data.user.role === "Reader") {
-          navigate("/");
-        } else {
-          navigate("/writer");
-        }
-      })
-      .catch((err) => {
-        dispatch(authFail(err.response.data.error));
-      });
-  };
-};
 
 export const signupStart = () => {
   return {
@@ -89,6 +56,41 @@ export const verifyCodeFailed = (error) => {
     error: error,
   };
 };
+export const auth = (email, password) => {
+  return async (dispatch) => {
+    dispatch(authStart());
+    const authData = {
+      email: email,
+      password: password,
+    };
+
+    await axios
+      .post("auth/signin", authData, {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      })
+      .then((response) => {
+        if (response.status === 200 && response.data.error) {
+          dispatch(authFail(response.data.error));
+        } else {
+          dispatch(authSuccess(response));
+          typeof window !== undefined &&
+            localStorage.setItem("auth", JSON.stringify(response.data.user));
+          if (response.data.user.role === "Reader") {
+            navigate("/");
+          } else {
+            navigate("/writer");
+          }
+        }
+      })
+      .catch((err) => {
+        dispatch(authFail(err.response.data.error));
+      });
+  };
+};
 
 export const onSignup = (data) => {
   return (dispatch) => {
@@ -111,8 +113,6 @@ export const onSignup = (data) => {
 };
 
 export const verifyCode = (data) => {
-  console.log("____", data);
-
   return (dispatch) =>
     axios
       .put("auth/verifyotp", data, {

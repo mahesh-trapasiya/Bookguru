@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { create } = require("lodash");
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
@@ -33,6 +34,9 @@ const UserSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "Country",
   },
+  photo: {
+    type: String,
+  },
   created: {
     type: Date,
     default: Date.now,
@@ -61,8 +65,8 @@ const UserSchema = new Schema({
     {
       type: Schema.Types.ObjectId,
       ref: "Book",
+      created: Date,
     },
-    ,
   ],
   booksreaded: [
     {

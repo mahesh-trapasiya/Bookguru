@@ -6,19 +6,16 @@ function ValidateLogin(Child) {
   return function validateLogin(props) {
     const token = localStorage.getItem("auth");
 
-    if (!token) {
-      return redirectTo("/login");
+    if (token) {
+      return (
+        <div>
+          <Header display>
+            <Child />
+          </Header>
+        </div>
+      );
     } else {
-      if (token) {
-        return (
-          <div>
-            <Header display />
-            <Child {...props} />
-          </div>
-        );
-      } else {
-        return redirectTo("/");
-      }
+      return redirectTo("/login");
     }
   };
 }

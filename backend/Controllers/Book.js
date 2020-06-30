@@ -58,7 +58,7 @@ exports.getBooks = async (req, res) => {
 
 exports.booksByUserId = async (req, res) => {
   try {
-    const books = Book.find({ author: req.auth._id });
+    const books = await Book.find({ author: req.params.userId });
 
     return res.status(200).json({
       books,
@@ -76,7 +76,7 @@ exports.addBook = async (req, res, next) => {
       name: req.body.name,
       pages: req.body.pages,
       reference: req.body.reference,
-      author: req.body.postedBy,
+      author: req.auth._id,
       upload: imgUrl,
     });
     const result = await book.save();
@@ -94,7 +94,7 @@ exports.likeBook = async (req, res, next) => {
       {
         $push: {
           likes: {
-            user: req.body.userId,
+            likedBy: req.auth._id,
           },
         },
       },
@@ -125,20 +125,57 @@ exports.unlikeBook = async (req, res, next) => {
   }
 };
 
-exports.commentBook = async (req, res, next) => {
-  try {
-    let comment = req.body.comment;
-    comment.bookedBy = req.body.userId;
+exports.DislikeBook = async (req, res, next) => {
+  console.log(req.body.userId);
 
+  try {
+    const UpdatedLike = await Book.findByIdAndUpdate(
+      req.body.bookId,
+      {
+        $push: {
+          deslikes: {
+            deslikedBy: req.auth._id,
+          },
+        },
+      },
+      { new: true }
+    );
+    res.status(200).json(UpdatedLike);
+  } catch (error) {
+    res.status(500).json({
+      error: "Something Went Wrong",
+    });
+  }
+};
+
+exports.removeDislikeBook = async (req, res, next) => {
+  try {
+    const UpdatedLike = await Book.findByIdAndUpdate(
+      req.body.bookId,
+      {
+        $pull: { deslikes: { deslikedBy: req.auth._id } },
+      },
+      { new: true }
+    );
+    res.status(200).json(UpdatedLike);
+  } catch (error) {
+    res.status(500).json({
+      error: "Something Went Wrong",
+    });
+  }
+};
+exports.commentBook = async (req, res, next) => {
+  let comment = req.body.comment;
+
+  console.table(comment);
+  try {
     const UpdatedComment = await Book.findByIdAndUpdate(
       req.body.bookId,
       {
-        $push: { comments: comment },
+        $push: { comments: { text: comment, postedBy: req.auth._id } },
       },
       { new: true }
-    )
-      .populate("comments.bookedBy", "_id name")
-      .populate("bookedBy", "_id name");
+    ).populate("comments.postedBy", "_id fname");
     res.status(200).json(UpdatedComment);
   } catch (error) {
     res.status(500).json({
@@ -220,7 +257,7 @@ exports.makeBookPrivate = async (req, res, next) => {
   }
 };
 
-exports.deletePostBook = async (req, res, next) => {
+exports.deleteBook = async (req, res, next) => {
   const book = req.book;
   if (!book) {
     return res.json({ message: "Post not Found" });
@@ -240,5 +277,20 @@ exports.deletePostBook = async (req, res, next) => {
     return res.status(200).json({ msg: "Book deleted successfully." });
   } catch (error) {
     return res.status(500).json("Something Went Wrong...");
+  }
+};
+
+exports.bookById = async (req, res) => {
+  try {
+    const books = await Book.find({ _id: req.params.bookId })
+      .populate("author", "fname lname")
+      .populate("category", "name")
+      .populate("comments.postedBy", "fname lname ");
+
+    return res.status(200).json({
+      books,
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Something went wrong...." });
   }
 };

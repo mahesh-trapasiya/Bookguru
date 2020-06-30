@@ -43,7 +43,7 @@ const UserSchema = new Schema({
   },
   updated: {
     type: Date,
-    default: Date.now,
+    // default: Date.now,
   },
   intrest: [
     {
@@ -70,14 +70,12 @@ const UserSchema = new Schema({
   ],
   booksreaded: [
     {
-      type: Schema.Types.ObjectId,
-      ref: "Book",
+      book: { type: Schema.Types.ObjectId, ref: "Book" },
     },
   ],
   readlater: [
     {
-      type: Schema.Types.ObjectId,
-      ref: "Book",
+      book: { type: Schema.Types.ObjectId, ref: "Book" },
     },
   ],
   isLoggedIn: {
@@ -86,6 +84,10 @@ const UserSchema = new Schema({
   },
   lastLoggedIn: {
     type: Date,
+  },
+  resetPasswordLink: {
+    type: String,
+    default: "",
   },
 });
 

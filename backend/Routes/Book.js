@@ -13,7 +13,7 @@ router.post(
     limits: {
       fileSize: 5 * 1024 * 1024, // keep images size < 5 MB
     },
-  }).single("image"),
+  }).single("book"),
   booksController.addBook
 );
 router.get("/getcategories", booksController.getCategories);
@@ -24,10 +24,13 @@ router.get(
 );
 router.put("/book/like", authCheck, booksController.likeBook);
 router.put("/book/unlike", authCheck, booksController.unlikeBook);
+router.put("/book/dislike", authCheck, booksController.DislikeBook);
+router.put("/book/undislike", authCheck, booksController.removeDislikeBook);
 router.put("/book/comment", authCheck, booksController.commentBook);
 router.put("/book/uncomment", authCheck, booksController.uncommentBook);
 router.put("/book/delete/:bookId", authCheck, booksController.deleteBook);
-router.put("/book/by/:userId", authCheck, booksController.booksByUserId);
+router.get("/book/by/:userId", authCheck, booksController.booksByUserId);
+router.get("/book/:bookId", authCheck, booksController.bookById);
 router.get("/books", booksController.getBooks);
 // router.post("/api/addcategories", booksController.addCategories);
 

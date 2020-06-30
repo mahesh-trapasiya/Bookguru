@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const { validationResult } = require("express-validator");
 const sendMail = require("../Helper/Mailer");
 const md5 = require("md5");
+const _ = require("lodash");
 
 exports.Signup = async (req, res, next) => {
   const errs = validationResult(req);
@@ -168,6 +169,8 @@ exports.Signin = async (req, res, next) => {
 };
 
 exports.forgetPassword = async (req, res, next) => {
+  console.table(req.body);
+
   const { email } = req.body;
   User.findOne({ email }, (err, user) => {
     if (err) {
@@ -212,13 +215,13 @@ exports.resetPassword = async (req, res) => {
       msg: err,
     });
   }
-  const { resetPasswordLink, newPassword } = req.body;
+  const { token, pass } = req.body;
 
   try {
-    const user = await User.findOne({ resetPasswordLink });
+    const user = await User.findOne({ token });
 
     const updatedFields = {
-      password: newPassword,
+      password: pass,
       resetPasswordLink: "",
     };
     user.updated = Date.now();
@@ -230,7 +233,8 @@ exports.resetPassword = async (req, res) => {
       message: `Great! Now you can login with your new password.`,
     });
   } catch (error) {
-    res.status(500).json({ error: "Something went wrong...." });
+    // res.status(500).json({ error: "Something went wrong...." });
+    console.log(error);
   }
 };
 

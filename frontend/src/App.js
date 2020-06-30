@@ -11,6 +11,8 @@ import UserProfile from "./Pages/Profile";
 import BookDetails from "./Pages/BookDetails";
 import Library from "./Pages/Library";
 import ManageBooks from "./Pages/Managebooks";
+import ForgotPassword from "./Pages/ForgotPassword";
+import ResetPassword from "./Pages/ResetPassword";
 
 function App() {
   const auth = JSON.parse(localStorage.getItem("auth"));
@@ -23,12 +25,14 @@ function App() {
       {/* Readers Routes */}
       {/* {auth.role === "Reader" ? ( */}
       <>
-        <AddBook exact path="/addbook" />
-        <UserProfile exact path="/user/profile" />
-        <BookDetails exact path="/book/id" />
+        <AddBook exact path="/book/add" />
+        <UserProfile exact path="/user/profile/:userId" />
+        <BookDetails exact path="/book/:bookId" />
         <Library exact path="/library" />
         <WriterHome exact path="/" />
-        <ManageBooks exact path="/books/id" />
+        <ManageBooks exact path="/books/:userId" />
+        <ForgotPassword exact path="/forgotpassword" />
+        <ResetPassword exact path="/resetpassword/:token" />
       </>
       {/* ) : null} */}
 

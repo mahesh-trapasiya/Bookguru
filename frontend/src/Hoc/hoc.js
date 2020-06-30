@@ -6,11 +6,11 @@ function ValidateLogin(Child) {
   return function validateLogin(props) {
     const auth = JSON.parse(localStorage.getItem("auth"));
 
-    if (auth.token) {
+    if (auth && auth.token) {
       return (
         <div>
           <Header display>
-            <Child />
+            <Child {...props} />
           </Header>
         </div>
       );

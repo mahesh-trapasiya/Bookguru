@@ -18,7 +18,7 @@ const reducer = (state = intialState, action) => {
       return updateObject(state, { error: null, loading: true });
 
     case actionTypes.AUTH_SUCCESS:
-      return updateObject(state, { error: action.error, loading: false });
+      return updateObject(state, { loading: false });
 
     case actionTypes.AUTH_FAIL:
       return updateObject(state, { error: action.error, loading: false });
@@ -42,6 +42,22 @@ const reducer = (state = intialState, action) => {
         error: action.userData.error,
       });
     case actionTypes.VERIFY_CODE_FAILED:
+      return updateObject(state, { error: action.error, loading: false });
+    case actionTypes.FORGOT_PASSWORD_SUCCESS:
+      return updateObject(state, {
+        message: action.data.data ? action.data.data.message : "",
+        error: action.data.error,
+      });
+    case actionTypes.FORGOT_PASSWORD_FAILED:
+      return updateObject(state, { error: action.error, loading: false });
+
+    case actionTypes.RESET_PASSWORD_SUCCESS:
+      return updateObject(state, {
+        message: action.data.data ? action.data.data.message : "",
+        error: action.data.error,
+      });
+
+    case actionTypes.RESET_PASSWORD_FAILED:
       return updateObject(state, { error: action.error, loading: false });
     default:
       return state;

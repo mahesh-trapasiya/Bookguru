@@ -1,4 +1,4 @@
-import React, { createElement, useState } from "react";
+import React, { createElement, useState, useEffect } from "react";
 import ValidateLogin from "../Hoc/hoc";
 import { Document, Page, pdfjs } from "react-pdf";
 import moment from "moment";
@@ -6,13 +6,10 @@ import {
   Button,
   Row,
   Col,
-  Typography,
   Descriptions,
-  Space,
   Comment,
   Avatar,
   Form,
-  List,
   Input,
   Tooltip,
 } from "antd";
@@ -24,59 +21,123 @@ import {
   LikeOutlined,
   DislikeOutlined,
 } from "@ant-design/icons";
+import {
+  fetchBookById,
+  addBookComment,
+  addBookLike,
+  removeBookLike,
+  addBookDisLike,
+  removeBookDisLike,
+} from "../Store/Actions/Book";
 
-function BookDetails() {
+import { connect } from "react-redux";
+import { isLoggedin } from "../Services/auth";
+import {
+  addReadLater,
+  deleteReadlater,
+  fetchUserById,
+} from "../Store/Actions/User";
+
+function BookDetails(props) {
+  const {
+    bookId,
+    getBookById,
+    book,
+    user,
+    insertComment,
+    insertLike,
+    removeLike,
+    insertDisLike,
+    removeDisLike,
+    insertReadLater,
+    removeReadLater,
+    getUserById,
+  } = props;
+
   pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
   const [pageNumber, setPageNumber] = useState(1);
   const [numPages, setNumPages] = useState();
-  const [likes, setLikes] = useState(0);
-  const [dislikes, setDislikes] = useState(0);
-  const [action, setAction] = useState(null);
+  const [liked, setLiked] = useState(false);
+  const [comment, setComment] = useState();
 
   const onDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
   };
 
-  const like = () => {
-    setLikes(1);
-    setDislikes(0);
-    setAction("liked");
-  };
-  const dislike = () => {
-    setLikes(0);
-    setDislikes(1);
-    setAction("disliked");
-  };
+  useEffect(() => {
+    getBookById(bookId);
+    getUserById(isLoggedin()._id);
+  }, []);
 
-  const actions = [
-    <span key="comment-basic-like">
-      <Tooltip title="Like">
-        {createElement(action === "liked" ? LikeFilled : LikeOutlined, {
-          onClick: like,
-        })}
-      </Tooltip>
-      <span className="comment-action">{likes}</span>
-    </span>,
-    <span key="comment-basic-dislike">
-      <Tooltip title="Dislike">
-        {React.createElement(
-          action === "disliked" ? DislikeFilled : DislikeOutlined,
-          {
-            onClick: dislike,
-          }
-        )}
-      </Tooltip>
-      <span className="comment-action">{dislikes}</span>
-    </span>,
-    <span key="comment-basic-reply-to">Reply to</span>,
-  ];
   const file = {
     url:
       "https://firebasestorage.googleapis.com/v0/b/library-ed12e.appspot.com/o/books%2F0975d8e2482aa230a0f8b98237e6a57eSQL%20Excercise.pdf?alt=media&token=bda22e56-2cb7-402e-a8d3-db4485d95536",
     data: Uint8Array,
     httpHeaders: { "Access-Control-Allow-Origin": "*" },
     range: "PDFDataRangeTransport",
+  };
+
+  const addComment = async () => {
+    await insertComment({ bookId, comment });
+  };
+  const like = async () => {
+    checkBookData(book.likes)
+      ? await removeLike({ bookId })
+      : await insertLike({ bookId });
+    await getBookById(bookId);
+  };
+
+  const deslike = async () => {
+    checkBookData(book.deslikes)
+      ? await removeDisLike({ bookId })
+      : await insertDisLike({ bookId });
+    await getBookById(bookId);
+  };
+
+  const checkUserData = (data) => {
+    const userId = isLoggedin()._id;
+    let arr = [];
+
+    book &&
+      data.forEach((e) => {
+        arr.push(e.book);
+      });
+
+    var match = arr.indexOf(bookId);
+    console.log(match);
+
+    if (match >= 0) {
+      return true;
+    }
+
+    return false;
+  };
+  const checkBookData = (data) => {
+    const userId = isLoggedin()._id;
+    let arr = [];
+
+    book &&
+      data.forEach((e) => {
+        arr.push(e.likedBy || e.deslikedBy || e.book);
+      });
+
+    var match = arr.indexOf(bookId);
+    console.log(match);
+
+    if (match >= 0) {
+      // setLiked(true);
+      return true;
+    }
+
+    return false;
+  };
+
+  const readLater = async () => {
+    checkUserData(user.readlater)
+      ? await removeReadLater(bookId)
+      : await insertReadLater(bookId);
+    await getUserById(isLoggedin()._id);
   };
   return (
     <div>
@@ -88,53 +149,55 @@ function BookDetails() {
             onLoadSuccess={onDocumentLoadSuccess}
             className="book-page"
           >
-            <Page pageNumber={pageNumber} height={400} />
-            {/*  <div>
-              <Button
-                type="primary"
-                style={{ float: "right" }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setPageNumber(pageNumber + 1);
-                }}
-              >
-                Next
-              </Button>
-              <Button
-                type="primary"
-                style={{ float: "left" }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setPageNumber(pageNumber - 1);
-                }}
-              >
-                Prev
-              </Button>
-              <p>
-                Page {pageNumber} of {numPages}
-              </p>
-            </div> */}
+            <Page pageNumber={pageNumber} />
           </Document>
           <br />
           <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <Button type="ghost">Like</Button>
-            <Button type="ghost">Deslike </Button>
-            <Button type="ghost">Read Later </Button>
             <Button
               type="ghost"
-              // shape="circle-outline"
-              // style={{ float: "right" }}
+              style={{ border: "none" }}
+              shape="circle-outline"
+              onClick={like}
             >
-              Add To Favorites
+              {liked ? <LikeFilled /> : <LikeOutlined />}
+            </Button>
+            <Button
+              type="ghost"
+              style={{ border: "none" }}
+              shape="circle-outline"
+              onClick={deslike}
+            >
+              <DislikeOutlined />{" "}
+            </Button>
+            <Button
+              type="ghost"
+              style={{ border: "none" }}
+              shape="circle-outline"
+              onClick={readLater}
+            >
+              <FileAddOutlined />{" "}
+            </Button>
+            <Button
+              type="ghost"
+              style={{ border: "none" }}
+              shape="circle-outline"
+            >
+              <StarOutlined />
             </Button>
           </div>
         </Col>
 
         <Col xs={24} sm={6} md={12} lg={16}>
-          <Descriptions title="Book Name" column={1} bordered>
-            <Descriptions.Item label="Author Name">Prepaid</Descriptions.Item>
-            <Descriptions.Item label="Category Name">ABc </Descriptions.Item>
-            <Descriptions.Item label="Pages">YES</Descriptions.Item>
+          <Descriptions title={book && book.name} column={1} bordered>
+            <Descriptions.Item label="Author Name">
+              {book && book.author.fname}
+            </Descriptions.Item>
+            <Descriptions.Item label="Category Name">
+              {book && book.category.name}{" "}
+            </Descriptions.Item>
+            <Descriptions.Item label="Pages">
+              {book && book.pages}
+            </Descriptions.Item>
           </Descriptions>
           <br />
         </Col>
@@ -145,45 +208,67 @@ function BookDetails() {
           <Form.Item>
             <Input.TextArea
               rows={4}
-              /* onChange={onChange} value={value} */ placeholder="Type Comment Here"
+              onChange={(e) => setComment(e.target.value)}
+              value={comment}
+              placeholder="Type Comment Here"
             />
           </Form.Item>
           <Form.Item>
             <Button
               htmlType="submit"
               // loading={submitting}
-              // onClick={onSubmit}
+              onClick={addComment}
               type="primary"
             >
               Add Comment
             </Button>
           </Form.Item>
           <br />
-          <Comment
-            actions={actions}
-            author={<a>Han Solo</a>}
-            avatar={
-              <Avatar
-                src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
-                alt="Han Solo"
+
+          {book &&
+            book.comments.map((comment, i) => (
+              <Comment
+                key={i}
+                author={<a>{comment.postedBy.fname}</a>}
+                /*  avatar={
+                  <Avatar
+                    src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
+                    alt="Han Solo"
+                  />
+                } */
+                content={<p>{comment.text}</p>}
+                datetime={
+                  <Tooltip title={moment().format("YYYY-MM-DD HH:mm:ss")}>
+                    <span>{moment(comment.created).fromNow()}</span>
+                  </Tooltip>
+                }
               />
-            }
-            content={
-              <p>
-                We supply a series of design principles, practical patterns and
-                high quality design resources (Sketch and Axure), to help people
-                create their product prototypes beautifully and efficiently.
-              </p>
-            }
-            datetime={
-              <Tooltip title={moment().format("YYYY-MM-DD HH:mm:ss")}>
-                <span>{moment().fromNow()}</span>
-              </Tooltip>
-            }
-          />
+            ))}
         </Col>
       </Row>
     </div>
   );
 }
-export default ValidateLogin(BookDetails);
+
+const mapStateToProps = (state) => {
+  return {
+    book: state.book.book,
+    user: state.user.user,
+  };
+};
+const mapDispatchToProps = (dispatch) => {
+  return {
+    getBookById: (bookId) => dispatch(fetchBookById(bookId)),
+    insertComment: (data) => dispatch(addBookComment(data)),
+    insertLike: (data) => dispatch(addBookLike(data)),
+    removeLike: (data) => dispatch(removeBookLike(data)),
+    insertDisLike: (data) => dispatch(addBookDisLike(data)),
+    removeDisLike: (data) => dispatch(removeBookDisLike(data)),
+    insertReadLater: (bookId) => dispatch(addReadLater(bookId)),
+    removeReadLater: (bookId) => dispatch(deleteReadlater(bookId)),
+    getUserById: (userId) => dispatch(fetchUserById(userId)),
+  };
+};
+export default ValidateLogin(
+  connect(mapStateToProps, mapDispatchToProps)(BookDetails)
+);

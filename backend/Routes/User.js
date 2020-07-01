@@ -26,5 +26,6 @@ router.put(
   authCheck,
   usersController.removeReadLater
 );
+router.get("/user/profile/:userId", authCheck, usersController.userById);
 
 module.exports = router;

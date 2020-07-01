@@ -30,6 +30,7 @@ const bookSchema = new Schema({
       text: String,
       created: {
         type: Date,
+        default: Date.now,
       },
       postedBy: {
         type: Schema.Types.ObjectId,
@@ -46,6 +47,7 @@ const bookSchema = new Schema({
 
       created: {
         type: Date,
+        default: Date.now,
       },
     },
   ],

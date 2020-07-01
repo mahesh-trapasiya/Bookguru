@@ -53,7 +53,7 @@ function Signup({
 }) {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [pass, setPass] = useState("");
   const [role, setRole] = useState("");
   const [country, setCountry] = useState("");
   const [plan, setPlan] = useState("");
@@ -68,7 +68,7 @@ function Signup({
   const onSearch = (val) => {};
 
   const onFinish = async (values) => {
-    const password = md5(password);
+    const password = md5(pass);
     try {
       verification
         ? await handleVerfication({ email, code })
@@ -155,7 +155,7 @@ function Signup({
                 },
               ]}
             >
-              <Input.Password onChange={(e) => setPassword(e.target.value)} />
+              <Input.Password onChange={(e) => setPass(e.target.value)} />
             </Form.Item>
             <Form.Item
               name="confirm"

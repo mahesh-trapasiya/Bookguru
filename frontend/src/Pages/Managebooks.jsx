@@ -1,50 +1,26 @@
-import React, { useState, createRef } from "react";
-import { Table, Input, Button, Space, Popconfirm, Tag } from "antd";
+import React, { useEffect, useRef, createRef, useState } from "react";
+import {
+  Tabs,
+  Row,
+  Col,
+  Table,
+  Input,
+  Button,
+  Space,
+  Popconfirm,
+  Tag,
+} from "antd";
+import { BookFilled, SearchOutlined } from "@ant-design/icons";
+import ValidateLogin from "../Hoc/hoc";
+import { connect } from "react-redux";
+import { fetchBooksByUserId } from "../Store/Actions/Book";
 import Highlighter from "react-highlight-words";
-import { SearchOutlined } from "@ant-design/icons";
 
-const data = [
-  {
-    key: "1",
-    name: "John Brown",
-    pages: 32,
-    refrences: [
-      <Tag color="blue" key={1}>
-        References
-      </Tag>,
-    ],
-    delete: [
-      <Popconfirm title="Are you sure？" okText="Yes" cancelText="No">
-        <a href="#">Delete</a>
-      </Popconfirm>,
-    ],
-    update: [<a href="/">Update</a>],
-    likes: "50",
-  },
-  {
-    key: "2",
-    name: "Joe Black",
-    pages: 42,
-    refrences: "London No. 1 Lake Park",
-    likes: "1",
-  },
-  {
-    key: "3",
-    name: "Jim Green",
-    pages: 32,
-    refrences: "Sidney No. 1 Lake Park",
-    likes: "10",
-  },
-  {
-    key: "4",
-    name: "Jim Red",
-    pages: 32,
-    refrences: "London No. 2 Lake Park",
-    likes: "100",
-  },
-];
+function ManageBooks(props) {
+  const { getUserBooks, userId, books } = props;
 
-function TableUI() {
+  const [userBooks, setUserBooks] = useState([]);
+
   const [searchText, setSearchText] = useState();
   const [searchedColumn, setsearchedColumn] = useState();
   let searchInput = createRef();
@@ -190,7 +166,72 @@ function TableUI() {
       width: "5%",
     },
   ];
-  return <Table columns={columns} dataSource={data} tableLayout="auto" />;
+  const tableData = () => {
+    /*  let data = [];
+    books &&
+      books.map((book, i) => {
+        data.push({
+          key: i,
+          name: book.name,
+          pages: book.pages,
+          refrences: [
+            <Tag color="blue" key={1}>
+              {book.references}
+            </Tag>,
+          ],
+          delete: [
+            <Popconfirm title="Are you sure？" okText="Yes" cancelText="No">
+              <a href="#">Delete</a>
+            </Popconfirm>,
+          ],
+          update: [<a href="/">Update</a>],
+          likes: book.likes.length,
+        });
+      }); */
+    // setUserBooks(data);
+  };
+  useEffect(() => {
+    getUserBooks(userId);
+  }, []);
+
+  return (
+    <div>
+      <Row>
+        {books && console.log(books)}
+        <Col xs={24} sm={24} md={24} lg={24}>
+          <Tabs defaultActiveKey="1" /* onChange={callback} */>
+            <Tabs.TabPane
+              tab={
+                <span>
+                  <BookFilled />
+                  Your Books
+                </span>
+              }
+              key="1"
+            >
+              <Table
+                columns={columns}
+                dataSource={userBooks}
+                tableLayout="auto"
+              />
+            </Tabs.TabPane>
+          </Tabs>
+        </Col>
+      </Row>
+    </div>
+  );
 }
 
-export default TableUI;
+const mapStateToProps = (state) => {
+  return {
+    books: state.book.userBooks,
+  };
+};
+const mapDispatchToProps = (dispatch) => {
+  return {
+    getUserBooks: (userId) => dispatch(fetchBooksByUserId(userId)),
+  };
+};
+export default ValidateLogin(
+  connect(mapStateToProps, mapDispatchToProps)(ManageBooks)
+);

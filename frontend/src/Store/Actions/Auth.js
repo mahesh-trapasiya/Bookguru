@@ -1,4 +1,5 @@
 import axios from "../../Services/axios";
+import Axios from "axios";
 import * as actionTypes from "./ActionTypes";
 import { navigate } from "@reach/router";
 export const authStart = () => {
@@ -82,7 +83,7 @@ export const auth = (email, password) => {
           if (response.data.user.role === "Reader") {
             navigate("/");
           } else {
-            navigate("/writer");
+            navigate("/");
           }
         }
       })
@@ -128,5 +129,59 @@ export const verifyCode = (data) => {
       })
       .catch((err) => {
         dispatch(verifyCodeFailed(err.response.data.error));
+      });
+};
+
+export const forgotPasswordSuccess = (data) => {
+  return {
+    type: actionTypes.FORGOT_PASSWORD_SUCCESS,
+    data,
+  };
+};
+export const forgotPasswordFailed = (error) => {
+  return {
+    type: actionTypes.FORGOT_PASSWORD_FAILED,
+    error: error,
+  };
+};
+
+export const forgotPassword = (email) => {
+  return (dispatch) =>
+    Axios.put(`${process.env.REACT_APP_API_URL}auth/forgotpassword`, {
+      email,
+    })
+      .then((response) => {
+        dispatch(forgotPasswordSuccess(response));
+        // navigate("/success");
+      })
+      .catch((err) => {
+        dispatch(forgotPasswordFailed(err));
+      });
+};
+export const resetPasswordSuccess = (data) => {
+  return {
+    type: actionTypes.RESET_PASSWORD_SUCCESS,
+    data,
+  };
+};
+export const resetPasswordFailed = (error) => {
+  return {
+    type: actionTypes.RESET_PASSWORD_FAILED,
+    error: error,
+  };
+};
+
+export const userResetPassword = (password, token) => {
+  return (dispatch) =>
+    Axios.put(
+      `${process.env.REACT_APP_API_URL}auth/resetpassword/${token}`,
+      password
+    )
+      .then((response) => {
+        dispatch(resetPasswordSuccess(response));
+        // navigate("/success");
+      })
+      .catch((err) => {
+        dispatch(resetPasswordFailed(err));
       });
 };

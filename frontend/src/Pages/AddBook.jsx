@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import ValidateLogin from "../Hoc/hoc";
 import { Form, Select, InputNumber, Button, Row, Col, Input } from "antd";
 import { connect } from "react-redux";
-import { fetchCategories } from "../Store/Actions/Book";
-
+import { fetchCategories, addUserBook } from "../Store/Actions/Book";
 const { Option } = Select;
 
 const formItemLayout = {
@@ -15,25 +14,34 @@ const formItemLayout = {
   },
 };
 
-function Addbook({ categories, getCategoriesList }) {
-  const onFinish = (values) => {
-    console.log("Received values of form: ", values);
-  };
-  const [image, setImage] = useState();
+function Addbook(props) {
+  const { categories, getCategoriesList, insertBook } = props;
+  const [name, setName] = useState();
+  const [category, setCategory] = useState();
+  const [book, setBook] = useState();
+  const [pages, setPages] = useState();
+  const [references, setReferences] = useState();
+  let formData = new FormData();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // let formData = new FormData();
+    formData.append("book", book);
+    formData.set("name", name);
+    formData.set("category", category);
+    formData.set("pages", pages);
+    formData.set("references", references);
+    await insertBook(formData);
   };
   useEffect(() => {
     getCategoriesList();
   }, [getCategoriesList]);
+
   return (
     <div>
       <Form
         name="add book"
         {...formItemLayout}
-        onFinish={onFinish}
+        // onFinish={onFinish}
         initialValues={{
           "input-number": 3,
           "checkbox-group": ["A", "B"],
@@ -53,7 +61,10 @@ function Addbook({ categories, getCategoriesList }) {
                 },
               ]}
             >
-              <Select placeholder="Select Book Category">
+              <Select
+                placeholder="Select Book Category"
+                onChange={(value) => setCategory(value)}
+              >
                 {categories &&
                   categories.map((category) => (
                     <Option value={category._id}> {category.name}</Option>
@@ -70,15 +81,28 @@ function Addbook({ categories, getCategoriesList }) {
                 },
               ]}
             >
-              <Input />
+              <Input value={name} onChange={(e) => setName(e.target.value)} />
             </Form.Item>
 
             <Form.Item label="File">
-              <Input type="file" name="book" id="book" />
+              <Input
+                type="file"
+                name="book"
+                id="book"
+                onChange={(e) => {
+                  setBook(e.target.files[0]);
+                  formData.append("book", e.target.files[0]);
+                }}
+              />
             </Form.Item>
             <Form.Item label="Book Pages ">
               <Form.Item name="input-number" noStyle>
-                <InputNumber min={1} max={10000} />
+                <InputNumber
+                  min={1}
+                  max={10000}
+                  onChange={(value) => setPages(value)}
+                  value={pages}
+                />
               </Form.Item>
               <span className="ant-form-text"> Pages</span>
             </Form.Item>
@@ -86,7 +110,7 @@ function Addbook({ categories, getCategoriesList }) {
               <Input.TextArea
                 placeholder="Add References"
                 // allowClear
-                // onChange={onChange}
+                onChange={(e) => setReferences(e.target.value)}
               />
             </Form.Item>
 
@@ -96,8 +120,13 @@ function Addbook({ categories, getCategoriesList }) {
                 offset: 6,
               }}
             >
-              <Button type="primary" htmlType="submit">
-                Submit
+              <Button
+                type="primary"
+                htmlType="submit"
+                block
+                onClick={handleSubmit}
+              >
+                ADD BOOK
               </Button>
             </Form.Item>
           </Col>
@@ -111,11 +140,13 @@ function Addbook({ categories, getCategoriesList }) {
 const mapStateToProps = (state) => {
   return {
     categories: state.book.categories,
+    error: state.book.error,
   };
 };
 const mapDispatchToProps = (dispatch) => {
   return {
     getCategoriesList: () => dispatch(fetchCategories()),
+    insertBook: (data) => dispatch(addUserBook(data)),
   };
 };
 export default ValidateLogin(

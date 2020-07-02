@@ -7,6 +7,9 @@ const intialState = {
   categories: "",
   userBooks: null,
   book: null,
+  likedBooks: null,
+  message: "",
+  books: null,
 };
 
 const reducer = (state = intialState, action) => {
@@ -63,7 +66,30 @@ const reducer = (state = intialState, action) => {
       return updateObject(state, action);
     case actionTypes.REMOVE_DISLIKE_FAILED:
       return updateObject(state, { error: action.error, loading: false });
+    case actionTypes.DELETE_BOOK_SUCCESS:
+      return updateObject(state, {
+        message: action.data.data ? action.data.data.message : "",
+        error: action.data.error,
+      });
+    case actionTypes.DELETE_BOOK_FAILED:
+      return updateObject(state, { error: action.error, loading: false });
+    case actionTypes.UPDATE_BOOK_STATUS_SUCCESS:
+      return updateObject(state, {
+        message: action.data.data ? action.data.data.message : "",
+        error: action.data.error,
+      });
+    case actionTypes.UPDATE_BOOK_STATUS_FAILED:
+      return updateObject(state, { error: action.error, loading: false });
 
+    case actionTypes.FETCH_TOP_FIVE_LIKED_POST_SUCCESS:
+      return updateObject(state, { likedBooks: action.books.result });
+    case actionTypes.FETCH_TOP_FIVE_LIKED_POST_FAILED:
+      return updateObject(state, { error: action.error, loading: false });
+
+    case actionTypes.FETCH_ALL_BOOKS_SUCCESS:
+      return updateObject(state, { books: action.books.books });
+    case actionTypes.FETCH_ALL_BOOKS_FAILED:
+      return updateObject(state, { error: action.error, loading: false });
 
     default:
       return state;

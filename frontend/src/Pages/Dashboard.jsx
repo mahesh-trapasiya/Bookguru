@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Row,
   Col,
@@ -6,7 +6,7 @@ import {
   Avatar,
   Skeleton,
   Space,
-  List,
+  PageHeader,
   Typography,
 } from "antd";
 import {
@@ -17,9 +17,13 @@ import {
   LikeFilled,
 } from "@ant-design/icons";
 import ValidateLogin from "../Hoc/hoc";
+import { connect } from "react-redux";
+import { userReadLaterBook } from "../Store/Actions/User";
 
 const style = { background: "#0092ff", padding: "8px 0" };
-function DashBoard() {
+function DashBoard(props) {
+  const { getReadLaterBooks, books } = props;
+
   const listData = [];
   for (let i = 0; i < 5; i++) {
     listData.push({
@@ -36,95 +40,44 @@ function DashBoard() {
       {text}
     </Space>
   );
+  useEffect(() => {
+    getReadLaterBooks();
+  }, []);
   return (
     <div>
-      <Row justify="space-between">
-        <Col xs={24} sm={24} md={24} lg={11}>
-          <List
-            itemLayout="horizontal"
-            size="small"
-            bordered
-            header={
-              <Typography.Title level={4}>
-                Top 5 Most Liked Books
-              </Typography.Title>
-            }
-            dataSource={listData}
+      <Row justify="space-between" style={{ height: "100vh" }}>
+        <Col xs={24} sm={24} md={24} lg={24}>
+          <PageHeader
+            className="site-page-header-responsive"
+            title="Recently Added Read Later"
+            subTitle="This is a subtitle"
+          />
+
+          <Card
+            style={{ width: 240 }}
+            cover={<img alt="example" src="https://fakeimg.pl/300x240/" />}
           >
-            {listData.map((item) => (
-              <List.Item
-                key={item.title}
-                actions={[
-                  <IconText
-                    icon={<StarFilled />}
-                    text="156"
-                    key="list-vertical-star-o"
-                    color="Yellow"
-                  />,
-                  <IconText
-                    icon={<LikeFilled />}
-                    key="list-vertical-like-o"
-                    color="blue"
-                  />,
-                  <IconText
-                    icon={<DislikeOutlined />}
-                    text="156"
-                    key="list-vertical-like-o"
-                    color="red"
-                  />,
-                  <IconText
-                    icon={<MessageOutlined />}
-                    text="2"
-                    key="list-vertical-message"
-                  />,
-                ]}
-              >
-                <List.Item.Meta
-                  avatar={<Avatar src={item.avatar} />}
-                  title={<a href={item.href}>{item.title}</a>}
-                  description={item.description}
-                />
-                {item.content}
-              </List.Item>
-            ))}
-          </List>
-        </Col>
-        <Col xs={24} sm={24} md={24} lg={11}>
-          <List
-            itemLayout="horizontal"
-            size="small"
-            bordered
-            header={
-              <Typography.Title level={4}>
-                Top 5 Most Readed Books
-              </Typography.Title>
-            }
-            dataSource={listData}
-          >
-            {listData.map((item) => (
-              <List.Item
-                key={item.title}
-                actions={[
-                  <IconText
-                    icon={<EyeFilled />}
-                    text="2"
-                    key="list-vertical-message"
-                    color="lightgreen"
-                  />,
-                ]}
-              >
-                <List.Item.Meta
-                  avatar={<Avatar src={item.avatar} />}
-                  title={<a href={item.href}>{item.title}</a>}
-                  description={item.description}
-                />
-                {item.content}
-              </List.Item>
-            ))}
-          </List>
+            <Card.Meta
+              title="Europe Street beat"
+              description="www.instagram.com"
+            />
+          </Card>
         </Col>
       </Row>
     </div>
   );
 }
-export default ValidateLogin(DashBoard);
+
+const mapStateToProps = (state) => {
+  return {
+    books: state.user.readLaterBook,
+  };
+};
+const mapDispatchToProps = (dispatch) => {
+  return {
+    getReadLaterBooks: () => dispatch(userReadLaterBook()),
+  };
+};
+export default ValidateLogin(
+  connect(mapStateToProps, mapDispatchToProps)(DashBoard)
+);

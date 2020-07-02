@@ -71,6 +71,7 @@ const UserSchema = new Schema({
   booksreaded: [
     {
       book: { type: Schema.Types.ObjectId, ref: "Book" },
+      readed: { type: Date },
     },
   ],
   readlater: [
@@ -78,13 +79,6 @@ const UserSchema = new Schema({
       book: { type: Schema.Types.ObjectId, ref: "Book" },
     },
   ],
-  isLoggedIn: {
-    type: Boolean,
-    default: false,
-  },
-  lastLoggedIn: {
-    type: Date,
-  },
   resetPasswordLink: {
     type: String,
     default: "",

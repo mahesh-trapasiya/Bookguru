@@ -29,6 +29,7 @@ import {
   addBookDisLike,
   removeBookDisLike,
 } from "../Store/Actions/Book";
+import { addBookReaded } from "../Store/Actions/User";
 
 import { connect } from "react-redux";
 import { isLoggedin } from "../Services/auth";
@@ -37,6 +38,7 @@ import {
   deleteReadlater,
   fetchUserById,
 } from "../Store/Actions/User";
+import { navigate } from "@reach/router";
 
 function BookDetails(props) {
   const {
@@ -52,6 +54,9 @@ function BookDetails(props) {
     insertReadLater,
     removeReadLater,
     getUserById,
+    insertBookReaded,
+    error,
+    readAllowed,
   } = props;
 
   pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
@@ -68,6 +73,7 @@ function BookDetails(props) {
   useEffect(() => {
     getBookById(bookId);
     getUserById(isLoggedin()._id);
+    insertBookReaded(bookId);
   }, []);
 
   const file = {
@@ -80,6 +86,7 @@ function BookDetails(props) {
 
   const addComment = async () => {
     await insertComment({ bookId, comment });
+    await getBookById(bookId);
   };
   const like = async () => {
     checkBookData(book.likes)
@@ -224,6 +231,7 @@ function BookDetails(props) {
             </Button>
           </Form.Item>
           <br />
+          {error && console.log(error)}
 
           {book &&
             book.comments.map((comment, i) => (
@@ -254,6 +262,8 @@ const mapStateToProps = (state) => {
   return {
     book: state.book.book,
     user: state.user.user,
+    error: state.user.error,
+    readAllowed: state.user.readAllowed,
   };
 };
 const mapDispatchToProps = (dispatch) => {
@@ -267,6 +277,7 @@ const mapDispatchToProps = (dispatch) => {
     insertReadLater: (bookId) => dispatch(addReadLater(bookId)),
     removeReadLater: (bookId) => dispatch(deleteReadlater(bookId)),
     getUserById: (userId) => dispatch(fetchUserById(userId)),
+    insertBookReaded: (bookId) => dispatch(addBookReaded(bookId)),
   };
 };
 export default ValidateLogin(

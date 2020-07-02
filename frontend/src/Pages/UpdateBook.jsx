@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import ValidateLogin from "../Hoc/hoc";
 import { Form, Select, InputNumber, Button, Row, Col, Input } from "antd";
 import { connect } from "react-redux";
-import { fetchCategories, addUserBook } from "../Store/Actions/Book";
+import { fetchCategories, fetchBookById } from "../Store/Actions/Book";
 const { Option } = Select;
 
 const formItemLayout = {
@@ -14,8 +14,14 @@ const formItemLayout = {
   },
 };
 
-function Addbook(props) {
-  const { categories, getCategoriesList, insertBook } = props;
+function UpdateBook(props) {
+  const {
+    categories,
+    getCategoriesList,
+    fetchBookData,
+    bookId,
+    bookData,
+  } = props;
   const [name, setName] = useState();
   const [category, setCategory] = useState();
   const [book, setBook] = useState();
@@ -25,14 +31,15 @@ function Addbook(props) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    formData.append("book", book);
+    /*  formData.append("book", book);
     formData.set("name", name);
     formData.set("category", category);
     formData.set("pages", pages);
-    formData.set("references", references);
-    await insertBook(formData);
+    formData.set("references", references); */
+    // await insertBook(formData);
   };
   useEffect(() => {
+    fetchBookData(bookId); //Fetching Book Data
     getCategoriesList();
   }, [getCategoriesList]);
 
@@ -43,13 +50,14 @@ function Addbook(props) {
         {...formItemLayout}
         // onFinish={onFinish}
         initialValues={{
-          "input-number": 3,
+          "input-number": pages,
           "checkbox-group": ["A", "B"],
           rate: 3.5,
         }}
       >
+        {console.log("___", name)}
         <Row>
-          <Col md={18} lg={12} sm={24}>
+          <Col md={12} lg={12} sm={24}>
             <Form.Item
               name="book category"
               label="Book Category"
@@ -66,8 +74,10 @@ function Addbook(props) {
                 onChange={(value) => setCategory(value)}
               >
                 {categories &&
-                  categories.map((category) => (
-                    <Option value={category._id}> {category.name}</Option>
+                  categories.map((category, i) => (
+                    <Option value={category._id} key={i}>
+                      {category.name}
+                    </Option>
                   ))}
               </Select>
             </Form.Item>
@@ -109,6 +119,7 @@ function Addbook(props) {
             <Form.Item label="References">
               <Input.TextArea
                 placeholder="Add References"
+                // allowClear
                 onChange={(e) => setReferences(e.target.value)}
               />
             </Form.Item>
@@ -125,7 +136,7 @@ function Addbook(props) {
                 block
                 onClick={handleSubmit}
               >
-                ADD BOOK
+                Update
               </Button>
             </Form.Item>
           </Col>
@@ -140,14 +151,15 @@ const mapStateToProps = (state) => {
   return {
     categories: state.book.categories,
     error: state.book.error,
+    bookData: state.book.book,
   };
 };
 const mapDispatchToProps = (dispatch) => {
   return {
     getCategoriesList: () => dispatch(fetchCategories()),
-    insertBook: (data) => dispatch(addUserBook(data)),
+    fetchBookData: (bookId) => dispatch(fetchBookById(bookId)),
   };
 };
 export default ValidateLogin(
-  connect(mapStateToProps, mapDispatchToProps)(Addbook)
+  connect(mapStateToProps, mapDispatchToProps)(UpdateBook)
 );

@@ -45,7 +45,18 @@ export const removeReadLaterSuccess = (data) => {
     data,
   };
 };
-
+export const fetchUserReadLaterSuccess = (readLater) => {
+  return {
+    type: actionTypes.FETCH_USER_READ_LATER_SUCCESS,
+    readLater,
+  };
+};
+export const fetchUserReadLaterFailed = (error) => {
+  return {
+    type: actionTypes.FETCH_USER_READ_LATER_FAILED,
+    error,
+  };
+};
 export const addReadLater = (bookId) => {
   return (dispatch) => {
     axios
@@ -72,7 +83,6 @@ export const deleteReadlater = (bookId) => {
 
 export const fetchUserById = (userId) => {
   return (dispatch) => {
-    // dispatch(fetchUserStart());
     axios
       .get(`/user/profile/${userId}`)
       .then((response) => {
@@ -81,6 +91,46 @@ export const fetchUserById = (userId) => {
 
       .catch((err) => {
         dispatch(fetchUserFailed(err));
+      });
+  };
+};
+export const userReadLaterBook = () => {
+  return (dispatch) => {
+    axios
+      .get("randomthreebooks")
+      .then((response) => {
+        dispatch(fetchUserReadLaterSuccess(response.data));
+      })
+
+      .catch((err) => {
+        dispatch(fetchUserReadLaterFailed(err));
+      });
+  };
+};
+
+export const addBookReadedFailed = (error) => {
+  return {
+    type: actionTypes.ADD_BOOK_READED_FAILED,
+    error: error,
+  };
+};
+export const addBookReadedSuccess = (data) => {
+  return {
+    type: actionTypes.ADD_BOOK_READED_SUCCESS,
+    data,
+  };
+};
+
+export const addBookReaded = (bookId) => {
+  return (dispatch) => {
+    axios
+      .put("add/book/readed", { bookId })
+      .then((response) => {
+        dispatch(addBookReadedSuccess(response.data));
+      })
+
+      .catch((err) => {
+        dispatch(addBookReadedFailed(err));
       });
   };
 };

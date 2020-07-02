@@ -65,9 +65,21 @@ const bookSchema = new Schema({
   ],
 
   status: {
-    type: String,
-    default: "public",
+    type: Boolean,
+    default: false,
   },
+  created: {
+    type: Date,
+    default: Date.now,
+  },
+  updated: {
+    type: Date,
+  },
+  reads: [
+    {
+      readBy: { type: Schema.Types.ObjectId, ref: "Users" },
+    },
+  ],
 });
 
 module.exports = mongoose.model("books", bookSchema);

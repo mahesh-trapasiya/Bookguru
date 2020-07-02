@@ -17,28 +17,42 @@ import {
   LikeFilled,
 } from "@ant-design/icons";
 import ValidateLogin from "../Hoc/hoc";
-
+import { fetchTopLikedBooks } from "../Store/Actions/Book";
+import { useEffect } from "react";
+import { connect } from "react-redux";
 const style = { background: "#0092ff", padding: "8px 0" };
-function WriterHome() {
+function WriterHome(props) {
+  const { topLikedBooks, getTopLikedBoooks } = props;
   const listData = [];
-  for (let i = 0; i < 5; i++) {
-    listData.push({
-      href: "https://ant.design",
-      title: `Book Name ${i}`,
-      avatar:
-        "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
-      description: "Book Category",
+  topLikedBooks &&
+    topLikedBooks.forEach((book, i) => {
+      console.log(book);
+
+      listData.push({
+        href: `/book/${book._id}`,
+        title: book.name,
+        avatar:
+          "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
+        description: book.category.name,
+        likes: book.likes.length,
+        deslikes: book.deslikes.length,
+      });
     });
-  }
+
   const IconText = ({ icon, text, color }) => (
     <Space>
       {<span style={{ color: color }}> {icon}</span>}
       {text}
     </Space>
   );
+
+  useEffect(() => {
+    getTopLikedBoooks();
+  }, []);
   return (
     <div>
       <Row justify="space-between">
+        {props && console.log(topLikedBooks)}
         <Col xs={24} sm={24} md={24} lg={11}>
           <List
             itemLayout="horizontal"
@@ -56,19 +70,14 @@ function WriterHome() {
                 key={item.title}
                 actions={[
                   <IconText
-                    icon={<StarFilled />}
-                    text="156"
-                    key="list-vertical-star-o"
-                    color="Yellow"
-                  />,
-                  <IconText
                     icon={<LikeFilled />}
                     key="list-vertical-like-o"
+                    text={item.likes}
                     color="blue"
                   />,
                   <IconText
                     icon={<DislikeOutlined />}
-                    text="156"
+                    text={item.deslikes}
                     key="list-vertical-like-o"
                     color="red"
                   />,
@@ -127,4 +136,16 @@ function WriterHome() {
     </div>
   );
 }
-export default ValidateLogin(WriterHome);
+const mapStateToProps = (state) => {
+  return {
+    topLikedBooks: state.book.likedBooks,
+  };
+};
+const mapDispatchToProps = (dispatch) => {
+  return {
+    getTopLikedBoooks: () => dispatch(fetchTopLikedBooks()),
+  };
+};
+export default ValidateLogin(
+  connect(mapStateToProps, mapDispatchToProps)(WriterHome)
+);

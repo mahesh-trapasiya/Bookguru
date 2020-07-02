@@ -9,20 +9,37 @@ import {
   Space,
   Popconfirm,
   Tag,
+  Switch,
 } from "antd";
-import { BookFilled, SearchOutlined } from "@ant-design/icons";
+import {
+  BookFilled,
+  SearchOutlined,
+  CheckOutlined,
+  CloseOutlined,
+} from "@ant-design/icons";
 import ValidateLogin from "../Hoc/hoc";
 import { connect } from "react-redux";
-import { fetchBooksByUserId } from "../Store/Actions/Book";
+import {
+  fetchBooksByUserId,
+  deleteBook,
+  changeBookStatus,
+} from "../Store/Actions/Book";
 import Highlighter from "react-highlight-words";
+import { Link } from "@reach/router";
 
 function ManageBooks(props) {
-  const { getUserBooks, userId, books } = props;
-
+  const {
+    getUserBooks,
+    userId,
+    books,
+    deleteUserBook,
+    updateBookStatus,
+  } = props;
   const [userBooks, setUserBooks] = useState([]);
-
   const [searchText, setSearchText] = useState();
   const [searchedColumn, setsearchedColumn] = useState();
+  let data = [];
+
   let searchInput = createRef();
   const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({
@@ -141,12 +158,7 @@ function ManageBooks(props) {
       key: "comments",
       width: "5%",
     },
-    {
-      title: "Favorites ",
-      dataIndex: "favorites",
-      key: "favorites",
-      width: "5%",
-    },
+
     {
       title: "Status ",
       dataIndex: "status",
@@ -166,38 +178,51 @@ function ManageBooks(props) {
       width: "5%",
     },
   ];
-  const tableData = () => {
-    /*  let data = [];
-    books &&
-      books.map((book, i) => {
-        data.push({
-          key: i,
-          name: book.name,
-          pages: book.pages,
-          refrences: [
-            <Tag color="blue" key={1}>
-              {book.references}
-            </Tag>,
-          ],
-          delete: [
-            <Popconfirm title="Are you sure？" okText="Yes" cancelText="No">
-              <a href="#">Delete</a>
-            </Popconfirm>,
-          ],
-          update: [<a href="/">Update</a>],
-          likes: book.likes.length,
-        });
-      }); */
-    // setUserBooks(data);
-  };
+
   useEffect(() => {
     getUserBooks(userId);
   }, []);
+  books &&
+    books.books.forEach((book, i) => {
+      data.push({
+        key: i,
+        name: book.name,
+        pages: book.pages,
+        refrences: [
+          <Tag color="blue" key={1}>
+            {book.references}
+          </Tag>,
+        ],
+        delete: [
+          <Popconfirm
+            title="Are you sure？"
+            key={i}
+            okText="Yes"
+            cancelText="No"
+            onConfirm={() => deleteUserBook(book._id)}
+          >
+            <a href="#">Delete</a>
+          </Popconfirm>,
+        ],
+        update: [<Link to={`/book/update/${book._id}`}>Update</Link>],
+        likes: book.likes.length,
+        deslikes: book.deslikes.length,
+        comments: book.comments.length,
+        status: [
+          <Switch
+            checkedChildren={<CheckOutlined />}
+            unCheckedChildren={<CloseOutlined />}
+            key={i}
+            defaultChecked={book.status}
+            onChange={() => updateBookStatus(book._id, !book.status)}
+          />,
+        ],
+      });
+    });
 
   return (
     <div>
       <Row>
-        {books && console.log(books)}
         <Col xs={24} sm={24} md={24} lg={24}>
           <Tabs defaultActiveKey="1" /* onChange={callback} */>
             <Tabs.TabPane
@@ -209,11 +234,7 @@ function ManageBooks(props) {
               }
               key="1"
             >
-              <Table
-                columns={columns}
-                dataSource={userBooks}
-                tableLayout="auto"
-              />
+              <Table columns={columns} dataSource={data} tableLayout="auto" />
             </Tabs.TabPane>
           </Tabs>
         </Col>
@@ -225,11 +246,14 @@ function ManageBooks(props) {
 const mapStateToProps = (state) => {
   return {
     books: state.book.userBooks,
+    msg: state.book.message,
   };
 };
 const mapDispatchToProps = (dispatch) => {
   return {
     getUserBooks: (userId) => dispatch(fetchBooksByUserId(userId)),
+    deleteUserBook: (bookId) => dispatch(deleteBook(bookId)),
+    updateBookStatus: (bookId) => dispatch(changeBookStatus(bookId)),
   };
 };
 export default ValidateLogin(

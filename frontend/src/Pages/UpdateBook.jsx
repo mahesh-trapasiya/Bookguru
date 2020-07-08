@@ -1,10 +1,14 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import ValidateLogin from "../Hoc/hoc";
 import { Form, Select, InputNumber, Button, Row, Col, Input } from "antd";
 import { connect } from "react-redux";
-import { fetchCategories, fetchBookById } from "../Store/Actions/Book";
+import {
+  fetchCategories,
+  fetchBookById,
+  updateBook as updateBookData,
+} from "../Store/Actions/Book";
+import axios from "../Services/axios";
 const { Option } = Select;
-
 const formItemLayout = {
   labelCol: {
     span: 6,
@@ -20,26 +24,41 @@ function UpdateBook(props) {
     getCategoriesList,
     fetchBookData,
     bookId,
-    bookData,
+    update,
   } = props;
+  const [bookData, setBookData] = useState();
   const [name, setName] = useState();
   const [category, setCategory] = useState();
   const [book, setBook] = useState();
   const [pages, setPages] = useState();
   const [references, setReferences] = useState();
+  const [form] = Form.useForm();
   let formData = new FormData();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    /*  formData.append("book", book);
-    formData.set("name", name);
-    formData.set("category", category);
-    formData.set("pages", pages);
-    formData.set("references", references); */
-    // await insertBook(formData);
+  const handleSubmit = async (values) => {
+    formData.set("name", values.bookname);
+    formData.set("category", values.bookcategory);
+    formData.set("pages", values.pages);
+    formData.set("references", values.references);
+    await update(bookId, formData);
   };
   useEffect(() => {
-    fetchBookData(bookId); //Fetching Book Data
+    // fetchBookData(bookId); //Fetching Book Data
+    axios.get(`book/${bookId}`).then((response) => {
+      /*  setName(response.data.books[0].name);
+      setCategory(response.data.books[0].category);
+      setBook(response.data.books[0].upload);
+      setPages(response.data.books[0].pages);
+      setReferences(response.data.books[0].references); */
+
+      form.setFieldsValue({
+        bookname: response.data.books[0].name,
+        pages: response.data.books[0].pages,
+        references: response.data.books[0].references,
+        bookcategory: response.data.books[0].category._id,
+        // book: process.env.REACT_APP_API_URL + response.data.books[0].upload,
+      });
+    });
     getCategoriesList();
   }, [getCategoriesList]);
 
@@ -48,18 +67,13 @@ function UpdateBook(props) {
       <Form
         name="add book"
         {...formItemLayout}
-        // onFinish={onFinish}
-        initialValues={{
-          "input-number": pages,
-          "checkbox-group": ["A", "B"],
-          rate: 3.5,
-        }}
+        onFinish={handleSubmit}
+        form={form}
       >
-        {console.log("___", name)}
         <Row>
           <Col md={12} lg={12} sm={24}>
             <Form.Item
-              name="book category"
+              name="bookcategory"
               label="Book Category"
               hasFeedback
               rules={[
@@ -74,9 +88,9 @@ function UpdateBook(props) {
                 onChange={(value) => setCategory(value)}
               >
                 {categories &&
-                  categories.map((category, i) => (
-                    <Option value={category._id} key={i}>
-                      {category.name}
+                  categories.map((c, i) => (
+                    <Option value={c._id} key={i}>
+                      {c.name}
                     </Option>
                   ))}
               </Select>
@@ -91,7 +105,7 @@ function UpdateBook(props) {
                 },
               ]}
             >
-              <Input value={name} onChange={(e) => setName(e.target.value)} />
+              <Input onChange={(e) => setName(e.target.value)} />
             </Form.Item>
 
             <Form.Item label="File">
@@ -105,8 +119,9 @@ function UpdateBook(props) {
                 }}
               />
             </Form.Item>
+
             <Form.Item label="Book Pages ">
-              <Form.Item name="input-number" noStyle>
+              <Form.Item name="input-number" noStyle name={["pages"]}>
                 <InputNumber
                   min={1}
                   max={10000}
@@ -116,7 +131,7 @@ function UpdateBook(props) {
               </Form.Item>
               <span className="ant-form-text"> Pages</span>
             </Form.Item>
-            <Form.Item label="References">
+            <Form.Item label="References" name={["references"]}>
               <Input.TextArea
                 placeholder="Add References"
                 // allowClear
@@ -158,6 +173,7 @@ const mapDispatchToProps = (dispatch) => {
   return {
     getCategoriesList: () => dispatch(fetchCategories()),
     fetchBookData: (bookId) => dispatch(fetchBookById(bookId)),
+    update: (bookId, data) => dispatch(updateBookData(bookId, data)),
   };
 };
 export default ValidateLogin(

@@ -3,13 +3,14 @@ import { updateObject } from "../utility";
 
 const intialState = {
   error: null,
-  loading: false,
+  loading: true,
   categories: "",
   userBooks: null,
   book: null,
   likedBooks: null,
   message: "",
   books: null,
+  topReadedBooks: null,
 };
 
 const reducer = (state = intialState, action) => {
@@ -40,6 +41,11 @@ const reducer = (state = intialState, action) => {
     case actionTypes.FETCH_BOOK_BY_ID_SUCCESS:
       return updateObject(state, { book: action.book.books[0] });
     case actionTypes.FETCH_BOOK_BY_ID_FAILED:
+      return updateObject(state, { error: action.error, loading: false });
+
+    case actionTypes.UPDATE_BOOK_SUCCESS:
+      return updateObject(state, action);
+    case actionTypes.UPDATE_BOOK_FAILED:
       return updateObject(state, { error: action.error, loading: false });
 
     case actionTypes.ADD_COMMENT_SUCCESS:
@@ -82,7 +88,10 @@ const reducer = (state = intialState, action) => {
       return updateObject(state, { error: action.error, loading: false });
 
     case actionTypes.FETCH_TOP_FIVE_LIKED_POST_SUCCESS:
-      return updateObject(state, { likedBooks: action.books.result });
+      return updateObject(state, {
+        likedBooks: action.books.result,
+        loading: false,
+      });
     case actionTypes.FETCH_TOP_FIVE_LIKED_POST_FAILED:
       return updateObject(state, { error: action.error, loading: false });
 
@@ -90,7 +99,22 @@ const reducer = (state = intialState, action) => {
       return updateObject(state, { books: action.books.books });
     case actionTypes.FETCH_ALL_BOOKS_FAILED:
       return updateObject(state, { error: action.error, loading: false });
+    case actionTypes.FETCH_TOP_READED_BOOKS_SUCCESS:
+      return updateObject(state, {
+        topReadedBooks: action.books,
+        loading: false,
+      });
+    case actionTypes.FETCH_TOP_READED_BOOKS_FAILED:
+      return updateObject(state, { error: action.error, loading: false });
+    case actionTypes.ADD_FAVOURITE_SUCCESS:
+      return updateObject(state, action);
+    case actionTypes.ADD_FAVOURITE_FAILED:
+      return updateObject(state, { error: action.error, loading: false });
 
+    case actionTypes.REMOVE_FAVOURITE_SUCCESS:
+      return updateObject(state, action);
+    case actionTypes.REMOVE_FAVOURITE_FAILED:
+      return updateObject(state, { error: action.error, loading: false });
     default:
       return state;
   }

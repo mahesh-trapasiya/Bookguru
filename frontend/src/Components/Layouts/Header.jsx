@@ -38,9 +38,14 @@ function Topbar(props) {
       <Layout>
         <Header className="header">
           {isLoggedin().role === "Writer" && (
-            <Menu theme="dark" mode="horizontal" defaultSelectedKeys={["0"]}>
+            <Menu
+              theme="dark"
+              mode="horizontal"
+              defaultSelectedKeys={["0"]}
+              openKeys={[]}
+            >
               <Menu.Item key="1">
-                <Link to="/">Dashboard</Link>
+                <Link to="/writer">Dashboard</Link>
               </Menu.Item>
               <Menu.Item key="2">
                 <Link to="/library">Library</Link>

@@ -16,6 +16,8 @@ import {
   SearchOutlined,
   CheckOutlined,
   CloseOutlined,
+  CloseCircleOutlined,
+  EditOutlined,
 } from "@ant-design/icons";
 import ValidateLogin from "../Hoc/hoc";
 import { connect } from "react-redux";
@@ -121,6 +123,7 @@ function ManageBooks(props) {
       title: "Book Name",
       dataIndex: "name",
       key: "name",
+      align: "center",
       width: "20%",
       ...getColumnSearchProps("name"),
     },
@@ -128,11 +131,13 @@ function ManageBooks(props) {
       title: "Pages",
       dataIndex: "pages",
       key: "pages",
+      align: "center",
       width: "5%",
     },
     {
       title: "References",
       dataIndex: "refrences",
+      align: "center",
       key: "refrences",
       ...getColumnSearchProps("refrences"),
     },
@@ -144,6 +149,7 @@ function ManageBooks(props) {
       sorter: {
         compare: (a, b) => a.likes - b.likes,
         multiple: 2,
+        align: "center",
       },
     },
     {
@@ -156,6 +162,7 @@ function ManageBooks(props) {
       title: "Comments",
       dataIndex: "comments",
       key: "comments",
+      align: "center",
       width: "5%",
     },
 
@@ -163,19 +170,22 @@ function ManageBooks(props) {
       title: "Status ",
       dataIndex: "status",
       key: "status",
+      align: "center",
       width: "5%",
     },
     {
       title: "Update",
       dataIndex: "update",
       key: "update",
-      width: "5%",
+      width: "2%",
+      align: "center",
     },
     {
       title: "Delete ",
       dataIndex: "delete",
       key: "delete",
-      width: "5%",
+      align: "center",
+      width: "2%",
     },
   ];
 
@@ -201,20 +211,26 @@ function ManageBooks(props) {
             cancelText="No"
             onConfirm={() => deleteUserBook(book._id)}
           >
-            <a href="#">Delete</a>
+            <a href="#">
+              <CloseCircleOutlined style={{ color: "red" }} />
+            </a>
           </Popconfirm>,
         ],
-        update: [<Link to={`/book/update/${book._id}`}>Update</Link>],
+        update: [
+          <Link to={`/book/update/${book._id}`}>
+            <EditOutlined />
+          </Link>,
+        ],
         likes: book.likes.length,
         deslikes: book.deslikes.length,
         comments: book.comments.length,
         status: [
           <Switch
-            checkedChildren={<CheckOutlined />}
+            checkedChildren={<CheckOutlined twoToneColor="#eb2f96" />}
             unCheckedChildren={<CloseOutlined />}
             key={i}
             defaultChecked={book.status}
-            onChange={() => updateBookStatus(book._id, !book.status)}
+            onChange={() => updateBookStatus(book._id)}
           />,
         ],
       });

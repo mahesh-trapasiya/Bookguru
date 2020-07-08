@@ -134,3 +134,71 @@ export const addBookReaded = (bookId) => {
       });
   };
 };
+
+export const fetchRecentThreeBooksReadSuccess = (books) => {
+  return {
+    type: actionTypes.FETCH_RECENT_THREE_READ_SUCCESS,
+    books,
+  };
+};
+export const fetchRecentThreeBooksReadFailed = (error) => {
+  return {
+    type: actionTypes.FETCH_RECENT_THREE_READ_FAILED,
+    error,
+  };
+};
+export const fetchRecentThreeFavoriteBooksSuccess = (books) => {
+  return {
+    type: actionTypes.FETCH_RECENT_THREE_FAVORITE_SUCCESS,
+    books,
+  };
+};
+export const fetchRecentThreeFavoriteBooksFailed = (error) => {
+  return {
+    type: actionTypes.FETCH_RECENT_THREE_FAVORITE_FAILED,
+    error,
+  };
+};
+export const fetchrandomThreeReadLaterBooksSuccess = (books) => {
+  return {
+    type: actionTypes.FETCH_RANDOM_THREE_READLATER_SUCCESS,
+    books,
+  };
+};
+export const fetchrandomThreeReadLaterBooksFailed = (error) => {
+  return {
+    type: actionTypes.FETCH_RANDOM_THREE_READLATER_FAILED,
+    error,
+  };
+};
+export const randomThreeBookReadLater = () => {
+  return (dispatch) => {
+    axios
+      .get("/randomthreebooks")
+      .then((response) =>
+        dispatch(fetchrandomThreeReadLaterBooksSuccess(response.data))
+      )
+      .catch((error) => dispatch(fetchrandomThreeReadLaterBooksFailed(error)));
+  };
+};
+export const recentThreeBookReads = () => {
+  return (dispatch) => {
+    axios
+      .get("user/recentthreereads")
+      .then((response) =>
+        dispatch(fetchRecentThreeBooksReadSuccess(response.data))
+      )
+      .catch((error) => dispatch(fetchRecentThreeBooksReadFailed(error)));
+  };
+};
+
+export const recentThreeFavoriteBooks = () => {
+  return (dispatch) => {
+    axios
+      .get("user/recentthreefavorites")
+      .then((response) =>
+        dispatch(fetchRecentThreeFavoriteBooksSuccess(response.data))
+      )
+      .catch((error) => dispatch(fetchRecentThreeFavoriteBooksFailed(error)));
+  };
+};

@@ -50,16 +50,16 @@ function Library(props) {
             return (
               <Col xs={24} sm={8} md={8} lg={4} key={i}>
                 <Card
+                  className="lib-card"
                   style={{ width: 200, margin: 5 }}
                   size="small"
                   cover={
                     <Document
-                      // file="https://firebasestorage.googleapis.com/v0/b/library-ed12e.appspot.com/o/books%2F0975d8e2482aa230a0f8b98237e6a57eSQL%20Excercise.pdf"
                       file={process.env.REACT_APP_API_URL + book.upload}
                       className="book-document"
-                      loading={<Spin spinning={true} size="large" />}
+                      loading={<Spin spinning size="large" />}
                     >
-                      <Page pageNumber={1} width={110} />
+                      <Page pageNumber={1} height={155} />
                     </Document>
                   }
                 >

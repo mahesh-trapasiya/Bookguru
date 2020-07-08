@@ -20,6 +20,8 @@ import {
   StarOutlined,
   LikeOutlined,
   DislikeOutlined,
+  FileAddFilled,
+  StarFilled,
 } from "@ant-design/icons";
 import {
   fetchBookById,
@@ -28,9 +30,10 @@ import {
   removeBookLike,
   addBookDisLike,
   removeBookDisLike,
+  addBookFavourite,
+  removeBookFavourite,
 } from "../Store/Actions/Book";
 import { addBookReaded } from "../Store/Actions/User";
-
 import { connect } from "react-redux";
 import { isLoggedin } from "../Services/auth";
 import {
@@ -38,7 +41,7 @@ import {
   deleteReadlater,
   fetchUserById,
 } from "../Store/Actions/User";
-import { navigate } from "@reach/router";
+import { navigate, redirectTo } from "@reach/router";
 
 function BookDetails(props) {
   const {
@@ -57,8 +60,9 @@ function BookDetails(props) {
     insertBookReaded,
     error,
     readAllowed,
+    addToFavorite,
+    removeFromFavourite,
   } = props;
-
   pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
   const [pageNumber, setPageNumber] = useState(1);
@@ -94,7 +98,7 @@ function BookDetails(props) {
       : await insertLike({ bookId });
     await getBookById(bookId);
   };
-
+  readAllowed === false && navigate("/plans");
   const deslike = async () => {
     checkBookData(book.deslikes)
       ? await removeDisLike({ bookId })
@@ -126,11 +130,10 @@ function BookDetails(props) {
 
     book &&
       data.forEach((e) => {
-        arr.push(e.likedBy || e.deslikedBy || e.book);
+        arr.push(e.likedBy || e.deslikedBy);
       });
 
-    var match = arr.indexOf(bookId);
-    console.log(match);
+    var match = arr.indexOf(userId);
 
     if (match >= 0) {
       // setLiked(true);
@@ -146,10 +149,18 @@ function BookDetails(props) {
       : await insertReadLater(bookId);
     await getUserById(isLoggedin()._id);
   };
+  const favourite = async () => {
+    await addToFavorite(bookId);
+    /* checkUserData(user.favourites)
+      : await removeFromFavourite(bookId);
+      */
+    await getUserById(isLoggedin()._id);
+  };
   return (
     <div>
+      {console.log(readAllowed)}
       <Row gutter={24}>
-        <Col xs={24} sm={18} md={12} lg={8}>
+        <Col xs={24} sm={18} md={12} lg={14}>
           <h5>Book Details</h5> <hr />
           <Document
             file="http://localhost:3000/js.pdf"
@@ -158,6 +169,23 @@ function BookDetails(props) {
           >
             <Page pageNumber={pageNumber} />
           </Document>
+          <div>
+            <Button
+              type="primary"
+              className="next-btn"
+              onClick={() => setPageNumber(pageNumber + 1)}
+            >
+              &#62;
+            </Button>
+            <Button
+              type="primary"
+              className="prev-btn"
+              onClick={() => setPageNumber(pageNumber - 1)}
+            >
+              &#60;
+            </Button>
+          </div>
+          <br />
           <br />
           <div style={{ display: "flex", justifyContent: "space-between" }}>
             <Button
@@ -166,7 +194,11 @@ function BookDetails(props) {
               shape="circle-outline"
               onClick={like}
             >
-              {liked ? <LikeFilled /> : <LikeOutlined />}
+              {book && checkBookData(book.likes) ? (
+                <LikeFilled />
+              ) : (
+                <LikeOutlined />
+              )}
             </Button>
             <Button
               type="ghost"
@@ -174,7 +206,11 @@ function BookDetails(props) {
               shape="circle-outline"
               onClick={deslike}
             >
-              <DislikeOutlined />{" "}
+              {book && checkBookData(book.deslikes) ? (
+                <DislikeOutlined />
+              ) : (
+                <DislikeFilled />
+              )}
             </Button>
             <Button
               type="ghost"
@@ -182,34 +218,42 @@ function BookDetails(props) {
               shape="circle-outline"
               onClick={readLater}
             >
-              <FileAddOutlined />{" "}
+              {user && !checkUserData(user.readlater) ? (
+                <FileAddOutlined />
+              ) : (
+                <FileAddFilled />
+              )}
             </Button>
             <Button
               type="ghost"
               style={{ border: "none" }}
               shape="circle-outline"
+              onClick={favourite}
             >
-              <StarOutlined />
+              {user && checkUserData(user.readlater) ? (
+                <StarOutlined />
+              ) : (
+                <StarFilled />
+              )}
             </Button>
           </div>
         </Col>
 
-        <Col xs={24} sm={6} md={12} lg={16}>
+        <Col xs={24} sm={6} md={12} lg={10}>
           <Descriptions title={book && book.name} column={1} bordered>
             <Descriptions.Item label="Author Name">
               {book && book.author.fname}
             </Descriptions.Item>
             <Descriptions.Item label="Category Name">
-              {book && book.category.name}{" "}
+              {book && book.category.name}
             </Descriptions.Item>
             <Descriptions.Item label="Pages">
               {book && book.pages}
             </Descriptions.Item>
           </Descriptions>
-          <br />
         </Col>
       </Row>
-      <br />{" "}
+      <br />
       <Row>
         <Col xs={24} sm={24} md={24} lg={24}>
           <Form.Item>
@@ -221,29 +265,23 @@ function BookDetails(props) {
             />
           </Form.Item>
           <Form.Item>
-            <Button
-              htmlType="submit"
-              // loading={submitting}
-              onClick={addComment}
-              type="primary"
-            >
+            <Button htmlType="submit" onClick={addComment} type="primary">
               Add Comment
             </Button>
           </Form.Item>
           <br />
-          {error && console.log(error)}
 
           {book &&
             book.comments.map((comment, i) => (
               <Comment
                 key={i}
-                author={<a>{comment.postedBy.fname}</a>}
-                /*  avatar={
+                avatar={
                   <Avatar
                     src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
                     alt="Han Solo"
                   />
-                } */
+                }
+                author={<b>{comment.postedBy.fname}</b>}
                 content={<p>{comment.text}</p>}
                 datetime={
                   <Tooltip title={moment().format("YYYY-MM-DD HH:mm:ss")}>
@@ -278,6 +316,8 @@ const mapDispatchToProps = (dispatch) => {
     removeReadLater: (bookId) => dispatch(deleteReadlater(bookId)),
     getUserById: (userId) => dispatch(fetchUserById(userId)),
     insertBookReaded: (bookId) => dispatch(addBookReaded(bookId)),
+    addToFavorite: (bookId) => dispatch(addBookFavourite(bookId)),
+    removeFromFavourite: (bookId) => dispatch(removeBookFavourite(bookId)),
   };
 };
 export default ValidateLogin(

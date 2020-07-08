@@ -14,6 +14,7 @@ import Library from "./Pages/Library";
 import ManageBooks from "./Pages/Managebooks";
 import ForgotPassword from "./Pages/ForgotPassword";
 import ResetPassword from "./Pages/ResetPassword";
+import Plans from "./Pages/Plans";
 
 import { isLoggedin } from "./Services/auth";
 import UpdateProfile from "./Pages/UpdateProfile";
@@ -32,10 +33,12 @@ function App() {
       <BookDetails exact path="/book/:bookId" />
       <Library exact path="/library" />
       <Dashboard exact path="/" />
+      <WriterHome exact path="/writer" />
 
       <ManageBooks exact path="/books/:userId" />
       <AddBook exact path="/book/add" />
       <UpdateBook exact path="/book/update/:bookId" />
+      <Plans exact path="/plans" />
 
       <NotFound default />
     </Router>

@@ -6,6 +6,10 @@ const initialState = {
   loading: false,
   user: null,
   readLaterBook: null,
+  recentReadsBooks: null,
+  recentFavoriteBooks: null,
+  randomBooks: null,
+  readAllowed: true,
 };
 
 const reducer = (state = initialState, action) => {
@@ -33,10 +37,31 @@ const reducer = (state = initialState, action) => {
       return updateObject(state, { error: action.error, loading: false });
     case actionTypes.ADD_BOOK_READED_SUCCESS:
       return updateObject(state, {
+        readAllowed: action.data.readAllowed,
         message: action.data.data,
         error: action.data.error,
       });
-
+    case actionTypes.FETCH_RECENT_THREE_READ_SUCCESS:
+      return updateObject(state, {
+        recentReadsBooks: action.books.result,
+        loading: false,
+      });
+    case actionTypes.FETCH_RECENT_THREE_READ_FAILED:
+      return updateObject(state, { error: action.error, loading: false });
+    case actionTypes.FETCH_RECENT_THREE_FAVORITE_SUCCESS:
+      return updateObject(state, {
+        recentFavoriteBooks: action.books.result,
+        loading: false,
+      });
+    case actionTypes.FETCH_RECENT_THREE_FAVORITE_FAILED:
+      return updateObject(state, { error: action.error, loading: false });
+    case actionTypes.FETCH_RANDOM_THREE_READLATER_SUCCESS:
+      return updateObject(state, {
+        randomBooks: action.books,
+        loading: false,
+      });
+    case actionTypes.FETCH_RANDOM_THREE_READLATER_FAILED:
+      return updateObject(state, { error: action.error, loading: false });
     default:
       return state;
   }

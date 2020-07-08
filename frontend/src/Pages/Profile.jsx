@@ -47,9 +47,7 @@ function UserProfile(props) {
           </Title>
           <div style={{ marginTop: "10px" }}>
             {userData &&
-              userData.favorites.map((favorite) => (
-                <Text code>{favorite}</Text>
-              ))}
+              userData.favorites.map((favorite) => <Text code></Text>)}
           </div>
           <Link to={`/profile/update/${isLoggedin()._id}`}>Update Details</Link>
         </Col>

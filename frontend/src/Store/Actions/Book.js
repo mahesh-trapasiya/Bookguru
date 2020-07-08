@@ -344,3 +344,104 @@ export const getAllbooks = () => {
       });
   };
 };
+
+export const addFavoriteSuccess = (data) => {
+  return {
+    type: actionTypes.ADD_FAVOURITE_SUCCESS,
+    data,
+  };
+};
+
+export const addFavoriteFailed = (error) => {
+  return {
+    type: actionTypes.ADD_FAVOURITE_FAILED,
+    error: error,
+  };
+};
+export const removeFavoriteSuccess = (data) => {
+  return {
+    type: actionTypes.REMOVE_FAVOURITE_SUCCESS,
+    data,
+  };
+};
+
+export const removeFavoriteFailed = (error) => {
+  return {
+    type: actionTypes.REMOVE_FAVOURITE_FAILED,
+    error: error,
+  };
+};
+
+export const addBookFavourite = (bookId) => {
+  return (dispatch) => {
+    axios
+      .put(`user/addfavorite/${bookId}`)
+      .then((response) => dispatch(addFavoriteSuccess(response.data)))
+
+      .catch((err) => {
+        dispatch(addFavoriteFailed(err));
+      });
+  };
+};
+export const removeBookFavourite = (bookId) => {
+  return (dispatch) => {
+    axios
+      .put(`user/removefavorite/${bookId}`)
+      .then((response) => dispatch(removeFavoriteSuccess(response.data)))
+
+      .catch((err) => {
+        dispatch(removeFavoriteFailed(err));
+      });
+  };
+};
+
+export const getTopReadedBooksSuccess = (books) => {
+  return {
+    type: actionTypes.FETCH_TOP_READED_BOOKS_SUCCESS,
+    books,
+  };
+};
+
+export const getTopReadedBooksFailed = (error) => {
+  return {
+    type: actionTypes.FETCH_TOP_READED_BOOKS_FAILED,
+    error: error,
+  };
+};
+export const topFiveReadedBooks = () => {
+  return (dispatch) => {
+    axios
+      .get(`book/top/reads`)
+      .then((response) => dispatch(getTopReadedBooksSuccess(response.data)))
+
+      .catch((err) => {
+        dispatch(getTopReadedBooksFailed(err));
+      });
+  };
+};
+
+export const updateBookSuccess = (data) => {
+  return {
+    type: actionTypes.UPDATE_BOOK_SUCCESS,
+    data,
+  };
+};
+
+export const updateBookFailed = (error) => {
+  return {
+    type: actionTypes.UPDATE_BOOK_FAILED,
+    error: error,
+  };
+};
+
+export const updateBook = (bookId, data) => {
+  return (dispatch) => {
+    axios
+      .put(`book/update/${bookId}`, data)
+      .then((response) => dispatch(updateBookSuccess(response.data)))
+
+      .catch((err) => {
+        dispatch(updateBookFailed(err));
+      });
+  };
+};

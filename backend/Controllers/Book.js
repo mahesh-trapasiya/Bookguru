@@ -2,6 +2,7 @@ const Book = require("../Models/Book");
 const Category = require("../Models/BookCategory");
 const { uploadImageToFirebase } = require("../Helper/FileUpload");
 const { _ } = require("lodash");
+const User = require("../Models/User");
 
 const categoryList = [
   { name: "Fantasy" },
@@ -110,6 +111,44 @@ exports.likeBook = async (req, res, next) => {
     });
   }
 };
+/* 
+exports.favouriteBook = async (req, res, next) => {
+  try {
+    const UpdatedFavorites = await User.findByIdAndUpdate(
+      req.auth._id,
+      {
+        $push: {
+          favorites: {
+            book: req.body.bookId,
+          },
+        },
+      },
+      { new: true }
+    );
+    res.status(200).json(UpdatedFavorites);
+  } catch (error) {
+    res.status(500).json({
+      error: "Something Went Wrong",
+    });
+  }
+};
+
+exports.removeFavouriteBook = async (req, res, next) => {
+  try {
+    const UpdatedFavorites = await User.findByIdAndUpdate(
+      req.auth._id,
+      {
+        $pull: { favorites: { book: req.body.bookId } },
+      },
+      { new: true }
+    );
+    res.status(200).json(UpdatedFavorites);
+  } catch (error) {
+    res.status(500).json({
+      error: "Something Went Wrong",
+    });
+  }
+}; */
 
 exports.unlikeBook = async (req, res, next) => {
   try {
@@ -231,6 +270,7 @@ exports.topFiveMostLikedBook = async (req, res, next) => {
   try {
     const result = await Book.find({ author: req.auth._id })
       .populate("category", "name")
+
       .sort({ likes: 1 })
       .limit(5);
 
@@ -243,13 +283,13 @@ exports.topFiveMostLikedBook = async (req, res, next) => {
 };
 
 exports.makeBookPrivate = async (req, res, next) => {
-  console.table(req.params.bookId);
+  const book = await Book.findById(req.params.bookId);
 
   try {
     const UpdatedStatus = await Book.findByIdAndUpdate(
       req.params.bookId,
       {
-        $set: { status: !req.body.status },
+        $set: { status: !book.status },
       },
       { new: true }
     );
@@ -278,18 +318,25 @@ exports.bookById = async (req, res) => {
 };
 
 exports.updateBook = async (req, res, next) => {
-  let book = req.book;
+  const bookData = JSON.parse(JSON.stringify(req.body));
+  console.log(req.file);
 
-  var fileUrl = uploadImageToFirebase(req.files[0]);
+  if (req.body) {
+    try {
+      const result = await Book.findByIdAndUpdate(req.params.bookId, {
+        $set: {
+          name: bookData.name,
+          references: bookData.references,
+          pages: bookData.pages,
+        },
+      });
 
-  book = _.extend(book, req.body);
-  book.updated = Date.now();
-
-  try {
-    const result = await book.save();
-    res.status(200).json({ book });
-  } catch (error) {
-    return res.status(500).json("Something Went Wrong...");
+      await result.save();
+      res.status(200).json({ result });
+    } catch (error) {
+      // return res.status(500).json("Something Went Wrong...");
+      console.log(error);
+    }
   }
 };
 exports.getAllBooks = async (req, res) => {
@@ -299,6 +346,20 @@ exports.getAllBooks = async (req, res) => {
     res.status(200).json({ books });
   } catch (error) {
     // res.status(500).json({ error: "Something went wrong...." });
+    console.log(error);
+  }
+};
+
+exports.topFiveReadCount = async (req, res, next) => {
+  try {
+    const result = await Book.find({ author: req.auth._id })
+      .populate("category", "name")
+      .select("reads likes comments name ")
+      .sort({ reads: "asc" })
+      .limit(5);
+
+    return res.status(200).send(result);
+  } catch (error) {
     console.log(error);
   }
 };

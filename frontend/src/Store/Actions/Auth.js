@@ -83,7 +83,7 @@ export const auth = (email, password) => {
           if (response.data.user.role === "Reader") {
             navigate("/");
           } else {
-            navigate("/");
+            navigate("/writer");
           }
         }
       })
@@ -179,7 +179,6 @@ export const userResetPassword = (password, token) => {
     )
       .then((response) => {
         dispatch(resetPasswordSuccess(response));
-        // navigate("/success");
       })
       .catch((err) => {
         dispatch(resetPasswordFailed(err));

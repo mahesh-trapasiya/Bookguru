@@ -17,26 +17,47 @@ import {
   LikeFilled,
 } from "@ant-design/icons";
 import ValidateLogin from "../Hoc/hoc";
-import { fetchTopLikedBooks } from "../Store/Actions/Book";
+import { fetchTopLikedBooks, topFiveReadedBooks } from "../Store/Actions/Book";
 import { useEffect } from "react";
 import { connect } from "react-redux";
 const style = { background: "#0092ff", padding: "8px 0" };
 function WriterHome(props) {
-  const { topLikedBooks, getTopLikedBoooks } = props;
+  const {
+    topLikedBooks,
+    getTopLikedBooks,
+    getTopTopBooks,
+    loading,
+    topReadedbooks,
+  } = props;
   const listData = [];
+  const listData2 = [];
   topLikedBooks &&
     topLikedBooks.forEach((book, i) => {
-      console.log(book);
-
-      listData.push({
-        href: `/book/${book._id}`,
-        title: book.name,
-        avatar:
-          "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
-        description: book.category.name,
-        likes: book.likes.length,
-        deslikes: book.deslikes.length,
-      });
+      if (book.likes.length !== 0) {
+        listData.push({
+          href: `/book/${book._id}`,
+          title: book.name,
+          avatar:
+            "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
+          description: book.category.name,
+          likes: book.likes.length,
+          deslikes: book.deslikes.length,
+          comments: book.comments.length,
+        });
+      }
+    });
+  topReadedbooks &&
+    topReadedbooks.forEach((book, i) => {
+      if (book.likes.length !== 0) {
+        listData2.push({
+          href: `/book/${book._id}`,
+          title: book.name,
+          avatar:
+            "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
+          description: book.category.name,
+          reads: book.reads.length,
+        });
+      }
     });
 
   const IconText = ({ icon, text, color }) => (
@@ -47,12 +68,13 @@ function WriterHome(props) {
   );
 
   useEffect(() => {
-    getTopLikedBoooks();
+    getTopLikedBooks();
+
+    getTopTopBooks();
   }, []);
   return (
-    <div>
+    <div style={{ height: "Calc(100vh - 155px)" }}>
       <Row justify="space-between">
-        {props && console.log(topLikedBooks)}
         <Col xs={24} sm={24} md={24} lg={11}>
           <List
             itemLayout="horizontal"
@@ -64,6 +86,7 @@ function WriterHome(props) {
               </Typography.Title>
             }
             dataSource={listData}
+            loading={loading}
           >
             {listData.map((item) => (
               <List.Item
@@ -83,7 +106,7 @@ function WriterHome(props) {
                   />,
                   <IconText
                     icon={<MessageOutlined />}
-                    text="2"
+                    text={item.comments}
                     key="list-vertical-message"
                   />,
                 ]}
@@ -108,22 +131,23 @@ function WriterHome(props) {
                 Top 5 Most Readed Books
               </Typography.Title>
             }
+            loading={loading}
             dataSource={listData}
           >
-            {listData.map((item) => (
+            {listData2.map((item) => (
               <List.Item
                 key={item.title}
                 actions={[
                   <IconText
                     icon={<EyeFilled />}
-                    text="2"
+                    text={item.reads}
                     key="list-vertical-message"
                     color="lightgreen"
                   />,
                 ]}
               >
                 <List.Item.Meta
-                  avatar={<Avatar src={item.avatar} />}
+                  // avatar={<Avatar src={item.avatar} />}
                   title={<a href={item.href}>{item.title}</a>}
                   description={item.description}
                 />
@@ -139,11 +163,14 @@ function WriterHome(props) {
 const mapStateToProps = (state) => {
   return {
     topLikedBooks: state.book.likedBooks,
+    topReadedbooks: state.book.topReadedBooks,
+    loading: state.book.loading,
   };
 };
 const mapDispatchToProps = (dispatch) => {
   return {
-    getTopLikedBoooks: () => dispatch(fetchTopLikedBooks()),
+    getTopLikedBooks: () => dispatch(fetchTopLikedBooks()),
+    getTopTopBooks: () => dispatch(topFiveReadedBooks()),
   };
 };
 export default ValidateLogin(

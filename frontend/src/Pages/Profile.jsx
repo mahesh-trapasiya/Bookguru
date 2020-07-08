@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import { Typography, Row, Col, Tabs } from "antd";
 import { BookFilled, UserOutlined } from "@ant-design/icons";
 import ValidateLogin from "../Hoc/hoc";
-import Table from "../Components/Table";
+// import Table from "../Components/Table";
 import { connect } from "react-redux";
 import { fetchUserById } from "../Store/Actions/User";
-
-const { Title, Text, Link } = Typography;
+import { Link } from "@reach/router";
+import { isLoggedin } from "../Services/auth";
+const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 
 function UserProfile(props) {
@@ -25,7 +26,7 @@ function UserProfile(props) {
     console.log(key);
   };
   return (
-    <div>
+    <div style={{ height: "100vh" }}>
       <Row>
         <Col sm={24} md={6} lg={6}>
           <img
@@ -42,33 +43,13 @@ function UserProfile(props) {
 
         <Col sm={6} md={18} lg={18}>
           <Title level={3} style={{ display: "inline" }}>
-            {userData && userData.fname + " " + userData.lname}
+            {userData && userData.username}
           </Title>
           <div style={{ marginTop: "10px" }}>
             {userData &&
-              userData.favorites.map((favorite) => (
-                <Text code>{favorite}</Text>
-              ))}
+              userData.favorites.map((favorite) => <Text code></Text>)}
           </div>
-        </Col>
-      </Row>
-      <Row>
-        <Col sm={24} md={24} lg={24}>
-          <div>
-            <Tabs defaultActiveKey="1" onChange={callback}>
-              <TabPane
-                tab={
-                  <span>
-                    <BookFilled />
-                    Your Books
-                  </span>
-                }
-                key="1"
-              >
-                <Table />
-              </TabPane>
-            </Tabs>
-          </div>
+          <Link to={`/profile/update/${isLoggedin()._id}`}>Update Details</Link>
         </Col>
       </Row>
     </div>

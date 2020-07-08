@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Row,
   Col,
@@ -6,8 +6,9 @@ import {
   Avatar,
   Skeleton,
   Space,
-  List,
+  PageHeader,
   Typography,
+  Spin,
 } from "antd";
 import {
   MessageOutlined,
@@ -17,114 +18,142 @@ import {
   LikeFilled,
 } from "@ant-design/icons";
 import ValidateLogin from "../Hoc/hoc";
+import { connect } from "react-redux";
+import {
+  userReadLaterBook,
+  recentThreeBookReads,
+  randomThreeBookReadLater,
+  recentThreeFavoriteBooks,
+} from "../Store/Actions/User";
+import { Document, Page, pdfjs } from "react-pdf";
 
 const style = { background: "#0092ff", padding: "8px 0" };
-function DashBoard() {
-  const listData = [];
-  for (let i = 0; i < 5; i++) {
-    listData.push({
-      href: "https://ant.design",
-      title: `Book Name ${i}`,
-      avatar:
-        "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
-      description: "Book Category",
-    });
+function DashBoard(props) {
+  pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+  let randomrBooks;
+  const {
+    getReadLaterBooks,
+    books,
+    getRecentReads,
+    recentBooks,
+    getRecentFavorites,
+    getRandomThree,
+    recentFavorites,
+    randomBooks,
+  } = props;
+
+  useEffect(() => {
+    getReadLaterBooks();
+    getRecentReads();
+    getRecentFavorites();
+    getRandomThree();
+  }, []);
+
+  if (randomBooks && randomBooks.readlater.length > 0) {
+    const shuffle = randomBooks.readlater.sort(() => 0.5 - Math.random());
+    randomBooks.readlater = shuffle.slice(0, 3);
   }
-  const IconText = ({ icon, text, color }) => (
-    <Space>
-      {<span style={{ color: color }}> {icon}</span>}
-      {text}
-    </Space>
-  );
+
   return (
-    <div>
+    <div style={{ height: "100vh" }}>
+      <Typography.Title level={2}>Recently Readed Books</Typography.Title>
       <Row justify="space-between">
-        <Col xs={24} sm={24} md={24} lg={11}>
-          <List
-            itemLayout="horizontal"
-            size="small"
-            bordered
-            header={
-              <Typography.Title level={4}>
-                Top 5 Most Liked Books
-              </Typography.Title>
-            }
-            dataSource={listData}
-          >
-            {listData.map((item) => (
-              <List.Item
-                key={item.title}
-                actions={[
-                  <IconText
-                    icon={<StarFilled />}
-                    text="156"
-                    key="list-vertical-star-o"
-                    color="Yellow"
-                  />,
-                  <IconText
-                    icon={<LikeFilled />}
-                    key="list-vertical-like-o"
-                    color="blue"
-                  />,
-                  <IconText
-                    icon={<DislikeOutlined />}
-                    text="156"
-                    key="list-vertical-like-o"
-                    color="red"
-                  />,
-                  <IconText
-                    icon={<MessageOutlined />}
-                    text="2"
-                    key="list-vertical-message"
-                  />,
-                ]}
+        {recentBooks &&
+          recentBooks.booksreaded.map((book, i) => (
+            <Col xs={24} sm={12} md={8} lg={8} key={i}>
+              <Card
+                style={{ width: 240 }}
+                cover={
+                  <Document
+                    file={process.env.REACT_APP_API_URL + book.book.upload}
+                    className="book-document"
+                    loading={<Spin spinning size="large" />}
+                  >
+                    <Page pageNumber={1} height={155} />
+                  </Document>
+                }
               >
-                <List.Item.Meta
-                  avatar={<Avatar src={item.avatar} />}
-                  title={<a href={item.href}>{item.title}</a>}
-                  description={item.description}
-                />
-                {item.content}
-              </List.Item>
-            ))}
-          </List>
-        </Col>
-        <Col xs={24} sm={24} md={24} lg={11}>
-          <List
-            itemLayout="horizontal"
-            size="small"
-            bordered
-            header={
-              <Typography.Title level={4}>
-                Top 5 Most Readed Books
-              </Typography.Title>
-            }
-            dataSource={listData}
-          >
-            {listData.map((item) => (
-              <List.Item
-                key={item.title}
-                actions={[
-                  <IconText
-                    icon={<EyeFilled />}
-                    text="2"
-                    key="list-vertical-message"
-                    color="lightgreen"
-                  />,
-                ]}
+                <Card.Meta title={book.book.name} description="" />
+              </Card>
+            </Col>
+          ))}
+      </Row>
+      <br />
+      <Typography.Title level={2}>Recently Favorite Books</Typography.Title>
+      <Row justify="space-between">
+        {recentFavorites &&
+          recentFavorites.favorites.map((book, i) => (
+            <Col xs={24} sm={12} md={8} lg={8} key={i}>
+              <Card
+                style={{ width: 240 }}
+                cover={
+                  <Document
+                    file={process.env.REACT_APP_API_URL + book.book.upload}
+                    className="book-document"
+                    loading={<Spin spinning size="large" />}
+                  >
+                    <Page pageNumber={1} height={155} />
+                  </Document>
+                }
               >
-                <List.Item.Meta
-                  avatar={<Avatar src={item.avatar} />}
-                  title={<a href={item.href}>{item.title}</a>}
-                  description={item.description}
+                <Card.Meta
+                  title={book.book.name}
+                  // description={book.book.author}
                 />
-                {item.content}
-              </List.Item>
-            ))}
-          </List>
-        </Col>
+              </Card>
+            </Col>
+          ))}
+      </Row>
+
+      <br />
+      <Typography.Title level={2}>Read Later Books</Typography.Title>
+      <Row justify="space-between">
+        {randomBooks && randomBooks.readlater > 1 ? (
+          randomBooks.readlater.map((book, i) => (
+            <Col xs={24} sm={12} md={8} lg={8} key={i}>
+              <Card
+                style={{ width: 240 }}
+                cover={
+                  <Document
+                    file={process.env.REACT_APP_API_URL + book.book.upload}
+                    className="book-document"
+                    loading={<Spin spinning size="large" />}
+                  >
+                    <Page pageNumber={1} height={155} />
+                  </Document>
+                }
+              >
+                <Card.Meta
+                  title={book.book.name}
+                  description={book.book.author}
+                />
+              </Card>
+            </Col>
+          ))
+        ) : (
+          <p>No Books</p>
+        )}
       </Row>
     </div>
   );
 }
-export default ValidateLogin(DashBoard);
+
+const mapStateToProps = (state) => {
+  return {
+    books: state.user.readLaterBook,
+    recentBooks: state.user.recentReadsBooks,
+    recentFavorites: state.user.recentFavoriteBooks,
+    randomBooks: state.user.randomBooks,
+  };
+};
+const mapDispatchToProps = (dispatch) => {
+  return {
+    getReadLaterBooks: () => dispatch(userReadLaterBook()),
+    getRecentReads: () => dispatch(recentThreeBookReads()),
+    getRecentFavorites: () => dispatch(recentThreeFavoriteBooks()),
+    getRandomThree: () => dispatch(randomThreeBookReadLater()),
+  };
+};
+export default ValidateLogin(
+  connect(mapStateToProps, mapDispatchToProps)(DashBoard)
+);

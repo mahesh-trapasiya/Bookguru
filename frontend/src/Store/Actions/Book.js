@@ -151,6 +151,44 @@ export const removeDisLikeFailed = (error) => {
     error: error,
   };
 };
+export const fetchTopLikedBooksSuccess = (books) => {
+  return {
+    type: actionTypes.FETCH_TOP_FIVE_LIKED_POST_SUCCESS,
+    books,
+  };
+};
+
+export const fetchTopLikedBooksFailed = (error) => {
+  return {
+    type: actionTypes.FETCH_TOP_FIVE_LIKED_POST_FAILED,
+    error: error,
+  };
+};
+
+export const deleteBookFailed = (error) => {
+  return {
+    type: actionTypes.DELETE_BOOK_FAILED,
+    error: error,
+  };
+};
+export const deleteBookSuccess = (data) => {
+  return {
+    type: actionTypes.DELETE_BOOK_SUCCESS,
+    data,
+  };
+};
+export const changeBookstatusFailed = (error) => {
+  return {
+    type: actionTypes.UPDATE_BOOK_STATUS_FAILED,
+    error: error,
+  };
+};
+export const changeBookStatusSuccess = (data) => {
+  return {
+    type: actionTypes.UPDATE_BOOK_STATUS_SUCCESS,
+    data,
+  };
+};
 
 export const fetchBookById = (bookId) => {
   return (dispatch) => {
@@ -242,6 +280,168 @@ export const removeBookDisLike = (data) => {
 
       .catch((err) => {
         dispatch(removeDisLikeFailed(err));
+      });
+  };
+};
+
+export const fetchTopLikedBooks = () => {
+  return (dispatch) => {
+    axios
+      .get("book/toplikedbooks")
+      .then((response) => dispatch(fetchTopLikedBooksSuccess(response.data)))
+
+      .catch((err) => {
+        dispatch(fetchTopLikedBooksFailed(err));
+      });
+  };
+};
+
+export const deleteBook = (bookId) => {
+  return (dispatch) => {
+    axios
+      .delete(`book/delete/${bookId}`)
+      .then((response) => dispatch(deleteBookSuccess(response.data)))
+
+      .catch((err) => {
+        dispatch(deleteBookFailed(err));
+      });
+  };
+};
+export const changeBookStatus = (bookId, status) => {
+  return (dispatch) => {
+    axios
+      .put(`book/changestatus/${bookId}`, status)
+      .then((response) => dispatch(changeBookStatusSuccess(response.data)))
+
+      .catch((err) => {
+        dispatch(changeBookstatusFailed(err));
+      });
+  };
+};
+
+export const fetchAllBooksSuccess = (books) => {
+  return {
+    type: actionTypes.FETCH_ALL_BOOKS_SUCCESS,
+    books,
+  };
+};
+
+export const fetchAllBooksFailed = (error) => {
+  return {
+    type: actionTypes.FETCH_ALL_BOOKS_FAILED,
+    error: error,
+  };
+};
+
+export const getAllbooks = () => {
+  return (dispatch) => {
+    axios
+      .get(`books`)
+      .then((response) => dispatch(fetchAllBooksSuccess(response.data)))
+
+      .catch((err) => {
+        dispatch(fetchAllBooksFailed(err));
+      });
+  };
+};
+
+export const addFavoriteSuccess = (data) => {
+  return {
+    type: actionTypes.ADD_FAVOURITE_SUCCESS,
+    data,
+  };
+};
+
+export const addFavoriteFailed = (error) => {
+  return {
+    type: actionTypes.ADD_FAVOURITE_FAILED,
+    error: error,
+  };
+};
+export const removeFavoriteSuccess = (data) => {
+  return {
+    type: actionTypes.REMOVE_FAVOURITE_SUCCESS,
+    data,
+  };
+};
+
+export const removeFavoriteFailed = (error) => {
+  return {
+    type: actionTypes.REMOVE_FAVOURITE_FAILED,
+    error: error,
+  };
+};
+
+export const addBookFavourite = (bookId) => {
+  return (dispatch) => {
+    axios
+      .put(`user/addfavorite/${bookId}`)
+      .then((response) => dispatch(addFavoriteSuccess(response.data)))
+
+      .catch((err) => {
+        dispatch(addFavoriteFailed(err));
+      });
+  };
+};
+export const removeBookFavourite = (bookId) => {
+  return (dispatch) => {
+    axios
+      .put(`user/removefavorite/${bookId}`)
+      .then((response) => dispatch(removeFavoriteSuccess(response.data)))
+
+      .catch((err) => {
+        dispatch(removeFavoriteFailed(err));
+      });
+  };
+};
+
+export const getTopReadedBooksSuccess = (books) => {
+  return {
+    type: actionTypes.FETCH_TOP_READED_BOOKS_SUCCESS,
+    books,
+  };
+};
+
+export const getTopReadedBooksFailed = (error) => {
+  return {
+    type: actionTypes.FETCH_TOP_READED_BOOKS_FAILED,
+    error: error,
+  };
+};
+export const topFiveReadedBooks = () => {
+  return (dispatch) => {
+    axios
+      .get(`book/top/reads`)
+      .then((response) => dispatch(getTopReadedBooksSuccess(response.data)))
+
+      .catch((err) => {
+        dispatch(getTopReadedBooksFailed(err));
+      });
+  };
+};
+
+export const updateBookSuccess = (data) => {
+  return {
+    type: actionTypes.UPDATE_BOOK_SUCCESS,
+    data,
+  };
+};
+
+export const updateBookFailed = (error) => {
+  return {
+    type: actionTypes.UPDATE_BOOK_FAILED,
+    error: error,
+  };
+};
+
+export const updateBook = (bookId, data) => {
+  return (dispatch) => {
+    axios
+      .put(`book/update/${bookId}`, data)
+      .then((response) => dispatch(updateBookSuccess(response.data)))
+
+      .catch((err) => {
+        dispatch(updateBookFailed(err));
       });
   };
 };

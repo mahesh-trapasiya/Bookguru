@@ -1,6 +1,8 @@
 const Book = require("../Models/Book");
 const Category = require("../Models/BookCategory");
 const { uploadImageToFirebase } = require("../Helper/FileUpload");
+const { _ } = require("lodash");
+const User = require("../Models/User");
 
 const categoryList = [
   { name: "Fantasy" },
@@ -46,7 +48,9 @@ exports.getCategories = async (req, res) => {
 
 exports.getBooks = async (req, res) => {
   try {
-    const books = await Book.find({});
+    const books = await Book.find({ status: false })
+      .populate("category", "name")
+      .populate("author", "fname");
 
     res.status(200).json({ books });
   } catch (error) {
@@ -70,14 +74,14 @@ exports.booksByUserId = async (req, res) => {
 
 exports.addBook = async (req, res, next) => {
   try {
-    const imgUrl = uploadImageToFirebase(req.file);
+    // const imgUrl = uploadImageToFirebase(req.file);
     const book = new Book({
       category: req.body.category,
       name: req.body.name,
       pages: req.body.pages,
       reference: req.body.reference,
       author: req.auth._id,
-      upload: imgUrl,
+      upload: req.file.path,
     });
     const result = await book.save();
     res.status(200).json({ result });
@@ -107,6 +111,44 @@ exports.likeBook = async (req, res, next) => {
     });
   }
 };
+/* 
+exports.favouriteBook = async (req, res, next) => {
+  try {
+    const UpdatedFavorites = await User.findByIdAndUpdate(
+      req.auth._id,
+      {
+        $push: {
+          favorites: {
+            book: req.body.bookId,
+          },
+        },
+      },
+      { new: true }
+    );
+    res.status(200).json(UpdatedFavorites);
+  } catch (error) {
+    res.status(500).json({
+      error: "Something Went Wrong",
+    });
+  }
+};
+
+exports.removeFavouriteBook = async (req, res, next) => {
+  try {
+    const UpdatedFavorites = await User.findByIdAndUpdate(
+      req.auth._id,
+      {
+        $pull: { favorites: { book: req.body.bookId } },
+      },
+      { new: true }
+    );
+    res.status(200).json(UpdatedFavorites);
+  } catch (error) {
+    res.status(500).json({
+      error: "Something Went Wrong",
+    });
+  }
+}; */
 
 exports.unlikeBook = async (req, res, next) => {
   try {
@@ -206,22 +248,18 @@ exports.uncommentBook = async (req, res, next) => {
 };
 
 exports.deleteBook = async (req, res, next) => {
-  const book = req.book;
+  const book = req.params.bookId;
   if (!book) {
     return res.json({ msg: "book not Found" });
   }
   //console.table(req.auth.role);
-  if (
-    req.auth._id != req.book.bookedBy._id &&
-    req.auth.role != "reader" &&
-    req.auth.role != "writer"
-  ) {
+  if (req.auth.role != "Reader" && req.auth.role != "Writer") {
     return res(401).json({
       msg: "Not authorized user for deleting this book.",
     });
   }
   try {
-    const result = await Book.remove({ _id: req.book._id });
+    const result = await Book.remove({ _id: req.params.bookId });
     return res.status(200).json({ msg: "book deleted successfully." });
   } catch (error) {
     return res.status(500).json("Something Went Wrong...");
@@ -230,7 +268,11 @@ exports.deleteBook = async (req, res, next) => {
 
 exports.topFiveMostLikedBook = async (req, res, next) => {
   try {
-    const result = await Book.findById(req.auth._id, { likes: 1 });
+    const result = await Book.find({ author: req.auth._id })
+      .populate("category", "name")
+
+      .sort({ likes: 1 })
+      .limit(5);
 
     return res.status(200).send({ result });
   } catch (error) {
@@ -241,42 +283,22 @@ exports.topFiveMostLikedBook = async (req, res, next) => {
 };
 
 exports.makeBookPrivate = async (req, res, next) => {
+  const book = await Book.findById(req.params.bookId);
+
   try {
     const UpdatedStatus = await Book.findByIdAndUpdate(
-      req.body.bookId,
+      req.params.bookId,
       {
-        $set: { status: !status },
+        $set: { status: !book.status },
       },
       { new: true }
     );
     res.status(200).json(UpdatedStatus);
   } catch (error) {
-    res.status(500).json({
+    /*  res.status(500).json({
       error: "Something Went Wrong",
-    });
-  }
-};
-
-exports.deleteBook = async (req, res, next) => {
-  const book = req.book;
-  if (!book) {
-    return res.json({ message: "Post not Found" });
-  }
-  //console.table(req.auth.role);
-  if (
-    req.auth._id != req.book.postedBy._id &&
-    req.auth.role != "Writer" &&
-    req.auth.role != "Reader"
-  ) {
-    return res(401).json({
-      msg: "Not authorized user for deleting this Book",
-    });
-  }
-  try {
-    const result = await Book.remove({ _id: req.book._id });
-    return res.status(200).json({ msg: "Book deleted successfully." });
-  } catch (error) {
-    return res.status(500).json("Something Went Wrong...");
+    }); */
+    console.log(error);
   }
 };
 
@@ -292,5 +314,52 @@ exports.bookById = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ error: "Something went wrong...." });
+  }
+};
+
+exports.updateBook = async (req, res, next) => {
+  const bookData = JSON.parse(JSON.stringify(req.body));
+  console.log(req.file);
+
+  if (req.body) {
+    try {
+      const result = await Book.findByIdAndUpdate(req.params.bookId, {
+        $set: {
+          name: bookData.name,
+          references: bookData.references,
+          pages: bookData.pages,
+        },
+      });
+
+      await result.save();
+      res.status(200).json({ result });
+    } catch (error) {
+      // return res.status(500).json("Something Went Wrong...");
+      console.log(error);
+    }
+  }
+};
+exports.getAllBooks = async (req, res) => {
+  try {
+    console.log("text________________________");
+    const books = await Book.find({ status: false });
+    res.status(200).json({ books });
+  } catch (error) {
+    // res.status(500).json({ error: "Something went wrong...." });
+    console.log(error);
+  }
+};
+
+exports.topFiveReadCount = async (req, res, next) => {
+  try {
+    const result = await Book.find({ author: req.auth._id })
+      .populate("category", "name")
+      .select("reads likes comments name ")
+      .sort({ reads: "asc" })
+      .limit(5);
+
+    return res.status(200).send(result);
+  } catch (error) {
+    console.log(error);
   }
 };

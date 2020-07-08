@@ -119,20 +119,6 @@ exports.Signin = async (req, res, next) => {
     }
 
     if (userExists.verified) {
-      /* Updatting isLoggedIn and lastLoggedIn fields */
-      User.updateOne(
-        { email: req.body.email },
-        { isLoggedIn: true, lastLoggedIn: Date.now() }
-      )
-        .then((result) => {
-          console.log("Logged in Flag updated");
-        })
-        .catch((err) => {
-          if (err) {
-            console.log("Loggedin flag not updated");
-          }
-        });
-
       let token;
       token = jwt.sign(
         {
@@ -144,7 +130,7 @@ exports.Signin = async (req, res, next) => {
           token: token,
         },
         process.env.JWT_KEY,
-        { expiresIn: "1h" }
+        { expiresIn: "8h" }
       );
 
       res.json({

@@ -1,12 +1,11 @@
 import React from "react";
-import { redirectTo } from "@reach/router";
+import { navigate, redirectTo } from "@reach/router";
 import Header from "../Components/Layouts/Header";
+import { isLoggedin } from "../Services/auth";
 
 function ValidateLogin(Child) {
   return function validateLogin(props) {
-    const auth = JSON.parse(localStorage.getItem("auth"));
-
-    if (auth && auth.token) {
+    if (isLoggedin() && isLoggedin().token) {
       return (
         <div>
           <Header display>
@@ -15,7 +14,7 @@ function ValidateLogin(Child) {
         </div>
       );
     } else {
-      return redirectTo("/login");
+      redirectTo("/login");
     }
   };
 }

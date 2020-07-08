@@ -17,27 +17,63 @@ import {
   LikeFilled,
 } from "@ant-design/icons";
 import ValidateLogin from "../Hoc/hoc";
-
+import { fetchTopLikedBooks, topFiveReadedBooks } from "../Store/Actions/Book";
+import { useEffect } from "react";
+import { connect } from "react-redux";
 const style = { background: "#0092ff", padding: "8px 0" };
-function WriterHome() {
+function WriterHome(props) {
+  const {
+    topLikedBooks,
+    getTopLikedBooks,
+    getTopTopBooks,
+    loading,
+    topReadedbooks,
+  } = props;
   const listData = [];
-  for (let i = 0; i < 5; i++) {
-    listData.push({
-      href: "https://ant.design",
-      title: `Book Name ${i}`,
-      avatar:
-        "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
-      description: "Book Category",
+  const listData2 = [];
+  topLikedBooks &&
+    topLikedBooks.forEach((book, i) => {
+      if (book.likes.length !== 0) {
+        listData.push({
+          href: `/book/${book._id}`,
+          title: book.name,
+          avatar:
+            "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
+          description: book.category.name,
+          likes: book.likes.length,
+          deslikes: book.deslikes.length,
+          comments: book.comments.length,
+        });
+      }
     });
-  }
+  topReadedbooks &&
+    topReadedbooks.forEach((book, i) => {
+      if (book.likes.length !== 0) {
+        listData2.push({
+          href: `/book/${book._id}`,
+          title: book.name,
+          avatar:
+            "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
+          description: book.category.name,
+          reads: book.reads.length,
+        });
+      }
+    });
+
   const IconText = ({ icon, text, color }) => (
     <Space>
       {<span style={{ color: color }}> {icon}</span>}
       {text}
     </Space>
   );
+
+  useEffect(() => {
+    getTopLikedBooks();
+
+    getTopTopBooks();
+  }, []);
   return (
-    <div>
+    <div style={{ height: "Calc(100vh - 155px)" }}>
       <Row justify="space-between">
         <Col xs={24} sm={24} md={24} lg={11}>
           <List
@@ -50,31 +86,27 @@ function WriterHome() {
               </Typography.Title>
             }
             dataSource={listData}
+            loading={loading}
           >
             {listData.map((item) => (
               <List.Item
                 key={item.title}
                 actions={[
                   <IconText
-                    icon={<StarFilled />}
-                    text="156"
-                    key="list-vertical-star-o"
-                    color="Yellow"
-                  />,
-                  <IconText
                     icon={<LikeFilled />}
                     key="list-vertical-like-o"
+                    text={item.likes}
                     color="blue"
                   />,
                   <IconText
                     icon={<DislikeOutlined />}
-                    text="156"
+                    text={item.deslikes}
                     key="list-vertical-like-o"
                     color="red"
                   />,
                   <IconText
                     icon={<MessageOutlined />}
-                    text="2"
+                    text={item.comments}
                     key="list-vertical-message"
                   />,
                 ]}
@@ -99,22 +131,23 @@ function WriterHome() {
                 Top 5 Most Readed Books
               </Typography.Title>
             }
+            loading={loading}
             dataSource={listData}
           >
-            {listData.map((item) => (
+            {listData2.map((item) => (
               <List.Item
                 key={item.title}
                 actions={[
                   <IconText
                     icon={<EyeFilled />}
-                    text="2"
+                    text={item.reads}
                     key="list-vertical-message"
                     color="lightgreen"
                   />,
                 ]}
               >
                 <List.Item.Meta
-                  avatar={<Avatar src={item.avatar} />}
+                  // avatar={<Avatar src={item.avatar} />}
                   title={<a href={item.href}>{item.title}</a>}
                   description={item.description}
                 />
@@ -127,4 +160,19 @@ function WriterHome() {
     </div>
   );
 }
-export default ValidateLogin(WriterHome);
+const mapStateToProps = (state) => {
+  return {
+    topLikedBooks: state.book.likedBooks,
+    topReadedbooks: state.book.topReadedBooks,
+    loading: state.book.loading,
+  };
+};
+const mapDispatchToProps = (dispatch) => {
+  return {
+    getTopLikedBooks: () => dispatch(fetchTopLikedBooks()),
+    getTopTopBooks: () => dispatch(topFiveReadedBooks()),
+  };
+};
+export default ValidateLogin(
+  connect(mapStateToProps, mapDispatchToProps)(WriterHome)
+);

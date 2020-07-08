@@ -31,6 +31,7 @@ app.use(booksRoutes);
 app.use(usersRoutes);
 app.use(authRoutes);
 app.use(countryRoutes);
+app.use("/upload", express.static("upload"));
 
 //Set Debugging Mode On
 mongoose.set("debug", true);

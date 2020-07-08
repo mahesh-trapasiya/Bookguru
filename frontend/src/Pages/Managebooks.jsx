@@ -9,20 +9,39 @@ import {
   Space,
   Popconfirm,
   Tag,
+  Switch,
 } from "antd";
-import { BookFilled, SearchOutlined } from "@ant-design/icons";
+import {
+  BookFilled,
+  SearchOutlined,
+  CheckOutlined,
+  CloseOutlined,
+  CloseCircleOutlined,
+  EditOutlined,
+} from "@ant-design/icons";
 import ValidateLogin from "../Hoc/hoc";
 import { connect } from "react-redux";
-import { fetchBooksByUserId } from "../Store/Actions/Book";
+import {
+  fetchBooksByUserId,
+  deleteBook,
+  changeBookStatus,
+} from "../Store/Actions/Book";
 import Highlighter from "react-highlight-words";
+import { Link } from "@reach/router";
 
 function ManageBooks(props) {
-  const { getUserBooks, userId, books } = props;
-
+  const {
+    getUserBooks,
+    userId,
+    books,
+    deleteUserBook,
+    updateBookStatus,
+  } = props;
   const [userBooks, setUserBooks] = useState([]);
-
   const [searchText, setSearchText] = useState();
   const [searchedColumn, setsearchedColumn] = useState();
+  let data = [];
+
   let searchInput = createRef();
   const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({
@@ -104,6 +123,7 @@ function ManageBooks(props) {
       title: "Book Name",
       dataIndex: "name",
       key: "name",
+      align: "center",
       width: "20%",
       ...getColumnSearchProps("name"),
     },
@@ -111,11 +131,13 @@ function ManageBooks(props) {
       title: "Pages",
       dataIndex: "pages",
       key: "pages",
+      align: "center",
       width: "5%",
     },
     {
       title: "References",
       dataIndex: "refrences",
+      align: "center",
       key: "refrences",
       ...getColumnSearchProps("refrences"),
     },
@@ -127,6 +149,7 @@ function ManageBooks(props) {
       sorter: {
         compare: (a, b) => a.likes - b.likes,
         multiple: 2,
+        align: "center",
       },
     },
     {
@@ -139,65 +162,83 @@ function ManageBooks(props) {
       title: "Comments",
       dataIndex: "comments",
       key: "comments",
+      align: "center",
       width: "5%",
     },
-    {
-      title: "Favorites ",
-      dataIndex: "favorites",
-      key: "favorites",
-      width: "5%",
-    },
+
     {
       title: "Status ",
       dataIndex: "status",
       key: "status",
+      align: "center",
       width: "5%",
     },
     {
       title: "Update",
       dataIndex: "update",
       key: "update",
-      width: "5%",
+      width: "2%",
+      align: "center",
     },
     {
       title: "Delete ",
       dataIndex: "delete",
       key: "delete",
-      width: "5%",
+      align: "center",
+      width: "2%",
     },
   ];
-  const tableData = () => {
-    /*  let data = [];
-    books &&
-      books.map((book, i) => {
-        data.push({
-          key: i,
-          name: book.name,
-          pages: book.pages,
-          refrences: [
-            <Tag color="blue" key={1}>
-              {book.references}
-            </Tag>,
-          ],
-          delete: [
-            <Popconfirm title="Are you sure？" okText="Yes" cancelText="No">
-              <a href="#">Delete</a>
-            </Popconfirm>,
-          ],
-          update: [<a href="/">Update</a>],
-          likes: book.likes.length,
-        });
-      }); */
-    // setUserBooks(data);
-  };
+
   useEffect(() => {
     getUserBooks(userId);
   }, []);
+  books &&
+    books.books.forEach((book, i) => {
+      data.push({
+        key: i,
+        name: book.name,
+        pages: book.pages,
+        refrences: [
+          <Tag color="blue" key={1}>
+            {book.references}
+          </Tag>,
+        ],
+        delete: [
+          <Popconfirm
+            title="Are you sure？"
+            key={i}
+            okText="Yes"
+            cancelText="No"
+            onConfirm={() => deleteUserBook(book._id)}
+          >
+            <a href="#">
+              <CloseCircleOutlined style={{ color: "red" }} />
+            </a>
+          </Popconfirm>,
+        ],
+        update: [
+          <Link to={`/book/update/${book._id}`}>
+            <EditOutlined />
+          </Link>,
+        ],
+        likes: book.likes.length,
+        deslikes: book.deslikes.length,
+        comments: book.comments.length,
+        status: [
+          <Switch
+            checkedChildren={<CheckOutlined twoToneColor="#eb2f96" />}
+            unCheckedChildren={<CloseOutlined />}
+            key={i}
+            defaultChecked={book.status}
+            onChange={() => updateBookStatus(book._id)}
+          />,
+        ],
+      });
+    });
 
   return (
     <div>
       <Row>
-        {books && console.log(books)}
         <Col xs={24} sm={24} md={24} lg={24}>
           <Tabs defaultActiveKey="1" /* onChange={callback} */>
             <Tabs.TabPane
@@ -209,11 +250,7 @@ function ManageBooks(props) {
               }
               key="1"
             >
-              <Table
-                columns={columns}
-                dataSource={userBooks}
-                tableLayout="auto"
-              />
+              <Table columns={columns} dataSource={data} tableLayout="auto" />
             </Tabs.TabPane>
           </Tabs>
         </Col>
@@ -225,11 +262,14 @@ function ManageBooks(props) {
 const mapStateToProps = (state) => {
   return {
     books: state.book.userBooks,
+    msg: state.book.message,
   };
 };
 const mapDispatchToProps = (dispatch) => {
   return {
     getUserBooks: (userId) => dispatch(fetchBooksByUserId(userId)),
+    deleteUserBook: (bookId) => dispatch(deleteBook(bookId)),
+    updateBookStatus: (bookId) => dispatch(changeBookStatus(bookId)),
   };
 };
 export default ValidateLogin(

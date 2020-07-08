@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const { create } = require("lodash");
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
@@ -63,28 +62,21 @@ const UserSchema = new Schema({
   },
   favorites: [
     {
-      type: Schema.Types.ObjectId,
-      ref: "Book",
+      book: { type: Schema.Types.ObjectId, ref: "books" },
       created: Date,
     },
   ],
   booksreaded: [
     {
-      book: { type: Schema.Types.ObjectId, ref: "Book" },
+      book: { type: Schema.Types.ObjectId, ref: "books" },
+      readed: { type: Date },
     },
   ],
   readlater: [
     {
-      book: { type: Schema.Types.ObjectId, ref: "Book" },
+      book: { type: Schema.Types.ObjectId, ref: "books" },
     },
   ],
-  isLoggedIn: {
-    type: Boolean,
-    default: false,
-  },
-  lastLoggedIn: {
-    type: Date,
-  },
   resetPasswordLink: {
     type: String,
     default: "",
